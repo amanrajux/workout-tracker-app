@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FaDumbbell,
   FaHistory,
@@ -9,185 +9,192 @@ import {
   FaUndoAlt,
 } from "react-icons/fa";
 
-const workouts = {
+const workoutsData = {
   Monday: [
     { id: 1, name: "Chest Press Machine", sets: 4, reps: [8, 10, 12], notes: "Primary Compound Lift" },
     { id: 2, name: "Shoulder Press Machine", sets: 3, reps: [8, 10, 12], notes: "Controlled descent" },
     { id: 3, name: "Pec Fly Machine", sets: 3, reps: [12, 15], notes: "Focus on squeeze" },
     { id: 4, name: "Lateral Raise Machine", sets: 3, reps: [12, 15], notes: "Strict, slow movement" },
     { id: 5, name: "Triceps Extension Machine", sets: 3, reps: [12, 15], notes: "Full contraction" },
-    { id: 6, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Slow, controlled crunch" },
+    { id: 6, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Slow and controlled crunch" },
   ],
   Tuesday: [
     { id: 7, name: "Seated Leg Press", sets: 4, reps: [10, 12], notes: "Primary Compound Lift, full range" },
     { id: 8, name: "Leg Extension Machine", sets: 3, reps: [12, 15], notes: "Squeeze at the top" },
-    { id: 9, name: "Seated Leg Curl", sets: 3, reps: [12, 15], notes: "Focus on negative motion" },
+    { id: 9, name: "Seated Leg Curl Machine", sets: 3, reps: [12, 15], notes: "Focus on the negative" },
     { id: 10, name: "Hip Adduction Machine", sets: 3, reps: [15, 20], notes: "Squeeze glutes" },
     { id: 11, name: "Glute Extension Machine", sets: 3, reps: [12, 15], notes: "Peak contraction" },
-    { id: 12, name: "Calf Extension Machine", sets: 3, reps: [15, 20], notes: "Full range calf workout" },
+    { id: 12, name: "Calf Extension Machine", sets: 3, reps: [15, 20], notes: "Full stretch and squeeze" },
   ],
   Wednesday: [
-    { id: 20, name: "Active Rest & Stretching", sets: 1, reps: ["30-45 min lightweight"], notes: "Light mobility" },
+    { id: 20, name: "Active Rest / Stretching", sets: 1, reps: ["30-45 Min"], notes: "Light walk/mobility, optional light cardio" },
   ],
   Thursday: [
-    { id: 21, name: "Lat Pulldown", sets: 4, reps: [8, 10, 12], notes: "Back engagement" },
-    { id: 22, name: "Seated Row", sets: 3, reps: [8, 10, 12], notes: "Back strength" },
-    { id: 23, name: "Assist Dip/Chin", sets: 3, reps: [8, 10], notes: "Assisted body weight" },
-    { id: 24, name: "Rear Delt Machine", sets: 3, reps: [12, 15], notes: "Rear delt focus" },
-    { id: 25, name: "Bicep Curl", sets: 3, reps: [12, 15], notes: "Isolated curls" },
-    { id: 26, name: "Back Extension", sets: 3, reps: [12, 15], notes: "Lower back core" },
+    { id: 21, name: "Lat Pulldown Machine", sets: 4, reps: [8, 10, 12], notes: "Pull with elbows, squeeze back" },
+    { id: 22, name: "Seated Row Machine", sets: 3, reps: [8, 10, 12], notes: "Pull to lower abs" },
+    { id: 23, name: "Assist Dip/Chin Machine", sets: 3, reps: [8, 10], notes: "Minimal assistance needed" },
+    { id: 24, name: "Rear Delt Machine", sets: 3, reps: [12, 15], notes: "Reverse pec fly for rear delts" },
+    { id: 25, name: "Bicep Curl Machine", sets: 3, reps: [12, 15], notes: "Controlled descent" },
+    { id: 26, name: "Back Extension Machine", sets: 3, reps: [12, 15], notes: "Controlled lower back/core strength" },
   ],
   Friday: [
-    { id: 27, name: "Seated Leg Curl", sets: 4, reps: [10, 12], notes: "Hamstrings focus" },
-    { id: 28, name: "Inclined Leg Press", sets: 3, reps: [10, 12], notes: "Quad and glute" },
-    { id: 29, name: "Super Squats", sets: 3, reps: [10, 12], notes: "Higher rep quads" },
-    { id: 30, name: "Leg Raises", sets: 3, reps: [15, 20], notes: "Core build" },
-    { id: 31, name: "Russian Twist", sets: 3, reps: ["15/side"], notes: "Obliques" },
-    { id: 32, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Strong core" },
+    { id: 27, name: "Seated Leg Curl Machine", sets: 4, reps: [10, 12], notes: "Heavy focus on hamstrings" },
+    { id: 28, name: "Inclined Leg Press", sets: 3, reps: [10, 12], notes: "Feet higher for glute/ham emphasis" },
+    { id: 29, name: "Super Squats Machine", sets: 3, reps: [10, 12], notes: "High rep quad/glute work" },
+    { id: 30, name: "Leg Raises (Captain's Chair)", sets: 3, reps: [15, 20], notes: "Supported vertical leg raises" },
+    { id: 31, name: "Russian Twist", sets: 3, reps: ["15/side"], notes: "Use dumbbell or plate" },
+    { id: 32, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Heavier abdominal focus" },
   ],
   Saturday: [
-    { id: 33, name: "Elliptical Cardio", sets: 1, reps: ["45 min moderate effort"], notes: "Cardio session" },
-    { id: 34, name: "Stretch & Foam Roll", sets: 1, reps: ["10 min"], notes: "Post workout mobility" },
+    { id: 33, name: "Extended Cardio (Elliptical/Stairs/Treadmill)", sets: 1, reps: ["45-50 Min"], notes: "Steady state high calorie burn" },
+    { id: 34, name: "Stretching / Foam Rolling", sets: 1, reps: ["10-15 Min"], notes: "Dedicated mobility work" },
   ],
   Sunday: [
-    { id: 35, name: "Rest Day", sets: 0, reps: [], notes: "Full rest and recovery" },
+    { id: 35, name: "Full Rest", sets: 0, reps: [], notes: "Prioritize sleep and nutrition" },
   ],
 };
 
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
 const setsOptions = [3, 4];
 const repsOptions = [8, 10, 12];
 const manualLabel = "Manual";
 
 export default function Home() {
-  const [tab, setTab] = useState("today");
+  const [currentTab, setCurrentTab] = useState("today");
   const [completions, setCompletions] = useState(() => {
-    if (typeof window !== "undefined") {
-      const fromStorage = localStorage.getItem("workoutCompletions");
-      return fromStorage ? JSON.parse(fromStorage) : {};
+    if(typeof window !== "undefined") {
+      const saved = localStorage.getItem("workoutCompletions");
+      return saved ? JSON.parse(saved) : {};
     }
     return {};
   });
   const [filterDate, setFilterDate] = useState("");
   const [expandedDays, setExpandedDays] = useState({});
 
-  // Current day name for Today tab
-  const todayName = daysOfWeek[new Date().getDay()];
+  const today = daysOfWeek[new Date().getDay()];
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Enforce dark mode class for styling
-      document.body.classList.add("dark");
-    }
+    if(typeof window !== "undefined") document.body.classList.add("dark");
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("workoutCompletions", JSON.stringify(completions));
-    }
+    if(typeof window !== "undefined") localStorage.setItem("workoutCompletions", JSON.stringify(completions));
   }, [completions]);
 
-  function saveCompletion(day, id, data) {
-    setCompletions((prev) => {
-      const dayData = prev[day] ? { ...prev[day] } : {};
-      if (data) dayData[id] = data;
-      else delete dayData[id];
+  const toggleDay = (day) => setExpandedDays(prev => ({ ...prev, [day]: !prev[day] }));
+
+  function saveCompletion(day, exerciseId, data) {
+    setCompletions(prev => {
+      const dayData = { ...prev[day] } || {};
+      if(data) dayData[exerciseId] = data;
+      else delete dayData[exerciseId];
       return { ...prev, [day]: dayData };
     });
   }
 
-  // Filter completions by date string "YYYY-MM-DD"
-  function getCompletionsByDate(date) {
-    if (!date) return completions;
+  const filterCompletionsByDate = (date) => {
+    if(!date) return completions;
     const filtered = {};
-    Object.entries(completions).forEach(([day, exs]) => {
-      Object.entries(exs).forEach(([id, val]) => {
-        if (val.timestamp?.startsWith(date)) {
-          if (!filtered[day]) filtered[day] = {};
-          filtered[day][id] = val;
+    Object.entries(completions).forEach(([day, exs]) =>
+      Object.entries(exs).forEach(([exId, val]) => {
+        if(val.timestamp && val.timestamp.startsWith(date)) {
+          if(!filtered[day]) filtered[day] = {};
+          filtered[day][exId] = val;
         }
-      });
-    });
+      })
+    );
     return filtered;
-  }
-
-  const filteredCompletions = getCompletionsByDate(filterDate);
-
-  const toggleDay = (day) => {
-    setExpandedDays((prev) => ({ ...prev, [day]: !prev[day] }));
   };
 
-  // Workout card component
+  const filteredCompletions = filterCompletionsByDate(filterDate);
+
   const WorkoutCard = ({ exercise, day, interactive }) => {
     const saved = completions[day]?.[exercise.id] || {};
-    const [sets, setSets] = useState(saved.sets || null);
-    const [reps, setReps] = useState(saved.reps || null);
-    const [manual, setManual] = useState(saved.manual || "");
-    const [done, setDone] = useState(saved.done || false);
+    const [selectedSets, setSelectedSets] = useState(saved.sets || null);
+    const [selectedReps, setSelectedReps] = useState(saved.reps || null);
+    const [manualReps, setManualReps] = useState(saved.manual || "");
+    const [markedDone, setMarkedDone] = useState(saved.done || false);
+    const manualInputRef = useRef(null);
 
     useEffect(() => {
-      setSets(saved.sets || null);
-      setReps(saved.reps || null);
-      setManual(saved.manual || "");
-      setDone(saved.done || false);
+      setSelectedSets(saved.sets || null);
+      setSelectedReps(saved.reps || null);
+      setManualReps(saved.manual || "");
+      setMarkedDone(saved.done || false);
     }, [saved]);
 
+    useEffect(() => {
+      if(selectedReps === manualLabel && manualInputRef.current) {
+        manualInputRef.current.focus();
+      }
+    }, [selectedReps]);
+
     function markDone() {
-      if (!done && sets && (reps || reps === 0)) {
+      if(!markedDone && selectedSets && (selectedReps || selectedReps === 0)) {
         saveCompletion(day, exercise.id, {
           done: true,
-          sets,
-          reps: reps === manualLabel ? manual : reps,
-          manual: reps === manualLabel ? manual : null,
+          sets: selectedSets,
+          reps: selectedReps === manualLabel ? manualReps : selectedReps,
+          manual: selectedReps === manualLabel ? manualReps : null,
           timestamp: new Date().toISOString(),
         });
-        setDone(true);
+        setMarkedDone(true);
       } else {
         saveCompletion(day, exercise.id, null);
-        setDone(false);
+        setMarkedDone(false);
       }
     }
 
     return (
-      <div className={`card${done ? " done" : ""}`}>
+      <div className={`card${markedDone ? ' done' : ''}`}>
         <div className="card-header">
           <h4>{exercise.name}</h4>
-          {done && <FaCheckCircle className="done-icon" />}
+          {markedDone && <FaCheckCircle className="done-icon" />}
         </div>
         <p className="notes">{exercise.notes}</p>
-        {interactive && !done && (
+        {interactive && !markedDone && (
           <>
             <div className="selectors">
               <div className="sets">
-                <span>Sets</span>
-                {setsOptions.map((n) => (
-                  <button key={n} className={sets === n ? "selected" : ""} onClick={() => setSets(n)}>
-                    {n}
-                  </button>
+                <span>Sets:</span>
+                {setsOptions.map(n => (
+                  <button key={n} className={selectedSets === n ? 'selected' : ''} onClick={() => setSelectedSets(n)}>{n}</button>
                 ))}
               </div>
               <div className="reps">
-                <span>Reps</span>
-                {repsOptions.map((n) => (
-                  <button key={n} className={reps === n ? "selected" : ""} onClick={() => setReps(n)}>
-                    {n}
-                  </button>
+                <span>Reps:</span>
+                {repsOptions.map(n => (
+                  <button key={n} className={selectedReps === n ? 'selected' : ''} onClick={() => setSelectedReps(n)}>{n}</button>
                 ))}
-                <button className={reps === manualLabel ? "selected" : ""} onClick={() => setReps(manualLabel)}>
+                <button
+                  className={selectedReps === manualLabel ? "selected" : ""}
+                  onClick={() => setSelectedReps(manualLabel)}
+                >
                   {manualLabel}
                 </button>
-                {reps === manualLabel && (
-                  <input type="number" min="1" placeholder="Reps" value={manual} onChange={(e) => setManual(e.target.value)} />
+                {selectedReps === manualLabel && (
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Enter reps"
+                    ref={manualInputRef}
+                    value={manualReps}
+                    onChange={e => setManualReps(e.target.value)}
+                    aria-label="Manual reps input"
+                  />
                 )}
               </div>
             </div>
-            <button className="mark-btn" disabled={!sets || (reps === null && reps !== 0)} onClick={markDone}>
+            <button
+              onClick={markDone}
+              className="mark-btn"
+              disabled={!selectedSets || (selectedReps === null && selectedReps !== 0)}
+            >
               Mark Done
             </button>
           </>
         )}
-        {interactive && done && (
+        {interactive && markedDone && (
           <button className="mark-btn undo" onClick={markDone}>
             Undo
           </button>
@@ -195,17 +202,17 @@ export default function Home() {
 
         <style jsx>{`
           .card {
-            background: #161616;
+            background: #1a1a1a;
             border-radius: 12px;
-            box-shadow: 0 0 10px #000;
-            padding: 12px;
-            margin: 8px 0;
-            color: #ccc;
+            padding: 14px;
+            margin: 10px 0;
+            box-shadow: 0 5px 15px rgb(0 0 0 / 0.8);
+            color: #ddd;
           }
           .done {
-            background: #264d26;
-            color: #adebad;
-            box-shadow: 0 0 12px #72dc72;
+            background-color: #285228;
+            color: #abe2ab;
+            box-shadow: 0 0 14px #40d540aa;
           }
           .card-header {
             display: flex;
@@ -213,81 +220,133 @@ export default function Home() {
             align-items: center;
           }
           h4 {
-            margin: 0 0 6px 0;
+            margin: 0 0 8px 0;
+            user-select: none;
           }
           .notes {
             font-style: italic;
             opacity: 0.7;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
           }
           .selectors {
-            margin-bottom: 10px;
             display: flex;
+            gap: 20px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
-            gap: 16px;
           }
-          .sets,
-          .reps {
+          .sets, .reps {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
           }
           span {
-            min-width: 40px;
             font-weight: 600;
+            min-width: 40px;
             user-select: none;
           }
           button {
-            padding: 5px 12px;
+            cursor: pointer;
+            padding: 6px 12px;
             border-radius: 8px;
             border: none;
-            background: #3b7d3b;
+            background-color: #3b7d3b;
             color: white;
             font-weight: 600;
-            cursor: pointer;
-            user-select: none;
             transition: background-color 0.3s ease;
+            user-select: none;
           }
-          button.selected,
-          button:hover {
-            background: #5ac85a;
-            box-shadow: 0 0 10px #5ac85a;
+          button.selected, button:hover:not(:disabled) {
+            background-color: #59c859;
+            box-shadow: 0 0 12px #59c859bb;
           }
           button:disabled {
-            background: #2b4b2b;
+            background-color: #2a4b2a;
             cursor: not-allowed;
+            opacity: 0.6;
           }
           input[type="number"] {
             width: 60px;
-            padding: 5px 8px;
+            padding: 6px 10px;
             border-radius: 6px;
-            border: 1px solid #51a351;
-            background: #1f3d1f;
-            color: #a7d9a7;
+            border: 1.5px solid #59c859;
+            background-color: #223522;
+            color: #bdeebb;
             font-weight: 600;
+            font-family: "Inter", sans-serif;
           }
           .mark-btn {
             width: 100%;
             padding: 12px 0;
             border-radius: 30px;
-            background: #3c843c;
             font-weight: 700;
             font-size: 1.1rem;
-            cursor: pointer;
-            user-select: none;
+            background-color: #347534;
+            transition: background-color 0.3s ease;
           }
           .undo {
-            background: #a93030;
+            background-color: #b83333;
           }
           .done-icon {
+            color: #abe2ab;
             font-size: 1.6rem;
-            color: #90ee90;
-            filter: drop-shadow(0 0 8px #32cd32);
+            filter: drop-shadow(0 0 6px #40d540);
           }
         `}</style>
       </div>
     );
   };
+
+  // Accordion component for All & History tabs day grouping
+  const Accordion = ({ day, expanded, onToggle, children }) => (
+    <section className="accordion">
+      <header
+        onClick={() => onToggle(day)}
+        onKeyDown={(e) => e.key === "Enter" && onToggle(day)}
+        tabIndex={0}
+        role="button"
+        aria-expanded={expanded}
+        className="accordion-header"
+      >
+        {day}
+        {expanded ? <FaChevronUp /> : <FaChevronDown />}
+      </header>
+      <div className={`accordion-content${expanded ? " expanded" : ""}`}>
+        {children}
+      </div>
+      <style jsx>{`
+        .accordion {
+          background: #222;
+          border-radius: 14px;
+          box-shadow: 0 0 10px #000a;
+          margin-bottom: 1.5rem;
+          user-select: none;
+        }
+        .accordion-header {
+          padding: 12px 20px;
+          cursor: pointer;
+          color: #7ec87e;
+          font-weight: 700;
+          font-size: 1.15rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid #3c693c;
+          border-radius: 14px 14px 0 0;
+        }
+        .accordion-content {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.35s ease;
+          padding: 0 20px;
+        }
+        .accordion-content.expanded {
+          max-height: 1000px;
+          padding-top: 15px;
+          padding-bottom: 15px;
+        }
+      `}</style>
+    </section>
+  );
 
   return (
     <>
@@ -295,7 +354,7 @@ export default function Home() {
         body {
           margin: 0;
           font-family: "Inter", sans-serif;
-          background: #121212;
+          background-color: #111;
           color: #ccc;
           min-height: 100vh;
           overflow-x: hidden;
@@ -309,40 +368,10 @@ export default function Home() {
         header {
           text-align: center;
           font-weight: 900;
-          font-size: 1.8rem;
-          padding: 1rem;
+          font-size: 1.75rem;
+          padding: 1rem 0;
           user-select: none;
-          color: #7fbf7f;
-        }
-        .accordion {
-          background: #222;
-          border-radius: 14px;
-          box-shadow: 0 0 10px #0008;
-          margin-bottom: 20px;
-          user-select: none;
-        }
-        .accordion-header {
-          padding: 14px 20px;
-          font-weight: 700;
-          font-size: 1.1rem;
-          color: #90d090;
-          cursor: pointer;
-          border-bottom: 1px solid #304030;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-radius: 14px 14px 0 0;
-        }
-        .accordion-content {
-          padding: 0 20px;
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.3s ease;
-        }
-        .accordion-content.expanded {
-          max-height: 1000px;
-          padding-top: 15px;
-          padding-bottom: 20px;
+          color: #7ec87e;
         }
         nav.bottom-nav {
           position: fixed;
@@ -353,46 +382,48 @@ export default function Home() {
           border-radius: 34px;
           padding: 10px 30px;
           display: flex;
-          gap: 50px;
-          box-shadow: 0 0 15px #222222;
-          z-index: 100;
+          gap: 60px;
+          box-shadow: 0 0 15px #222222aa;
           user-select: none;
+          z-index: 999;
         }
         nav.bottom-nav button {
           background: none;
           border: none;
-          color: #888;
+          color: #666;
           font-weight: 600;
           font-size: 0.85rem;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           cursor: pointer;
-          transition: color 0.25s ease;
-          outline-offset: 3px;
+          transition: color 0.3s ease;
+          outline-offset: 2px;
         }
         nav.bottom-nav button:hover,
         nav.bottom-nav button:focus-visible {
-          color: #7fff7f;
+          color: #7ec87e;
           outline: none;
         }
         nav.bottom-nav button.active {
-          color: #7fff7f;
+          color: #7ec87e;
         }
         input[type="date"] {
-          background: #1e3b1e;
-          color: #a7e69a;
-          border: none;
-          border-radius: 6px;
-          padding: 6px 10px;
+          padding: 8px 14px;
           font-size: 1rem;
+          border-radius: 8px;
+          border: none;
+          background-color: #233423;
+          color: #aadeac;
           font-family: inherit;
           outline: none;
+          margin-left: 0.5rem;
+          user-select: text;
         }
         button:focus,
         input:focus {
-          outline: 3px solid #7fff7f;
+          outline: 3px solid #6abf6a;
           outline-offset: 2px;
         }
       `}</style>
@@ -401,79 +432,60 @@ export default function Home() {
         <header>Workout Tracker</header>
 
         <main>
-          {tab === "today" && (
+          {currentTab === "today" && (
             <>
-              <h2>Today's Workouts ({todayName})</h2>
-              {workouts[todayName].map((ex) => (
-                <WorkoutCard key={ex.id} exercise={ex} day={todayName} interactive />
+              <h2>Today's Workouts ({today})</h2>
+              {workouts[today].map(ex => (
+                <WorkoutCard key={ex.id} exercise={ex} day={today} interactive />
               ))}
             </>
           )}
 
-          {tab === "history" && (
+          {currentTab === "history" && (
             <>
               <h2>Workout History</h2>
-              <label htmlFor="date-filter" style={{ marginBottom: 10, display: "block" }}>
-                Filter by Date
-                <input id="date-filter" type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
+              <label htmlFor="date-filter">
+                Filter by Date:
+                <input
+                  id="date-filter"
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                />
+                {filterDate && (
+                  <button onClick={() => setFilterDate("")} style={{ marginLeft: 8, background: "#a33232", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", cursor: "pointer" }}>
+                    Clear
+                  </button>
+                )}
               </label>
-              {filterDate && (
-                <button
-                  onClick={() => setFilterDate("")}
-                  style={{
-                    background: "#a93030",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "6px 12px",
-                    cursor: "pointer",
-                    userSelect: "none",
-                    marginBottom: 10,
-                  }}
-                >
-                  Clear Filter
-                </button>
+              {Object.keys(filteredCompletions).length === 0 && filterDate && (
+                <p style={{ marginTop: 12 }}>No workouts found for this date.</p>
               )}
-              {Object.keys(filteredCompletions).length === 0 &&
-                (filterDate ? (
-                  <p>No workouts found for this date.</p>
-                ) : (
-                  <p>Select a date above to view your history.</p>
-                ))}
               {Object.entries(filteredCompletions).map(([day, exs]) => (
-                <div key={day} style={{ marginBottom: 20 }}>
-                  <h3>{day}</h3>
-                  <hr style={{ border: "0", borderTop: "1px solid #304030", marginBottom: 8 }} />
+                <Accordion key={day} day={day} expanded={expandedDays[day]} onToggle={toggleDay}>
                   {Object.entries(exs).map(([id, val]) => {
                     const w = workouts[day]?.find(e => e.id === Number(id));
                     return (
-                      <div key={id} className="card" style={{ marginBottom: 8 }}>
-                        <strong>{w?.name || "Unknown"}</strong> - Sets: {val.sets}, Reps: {val.reps}
+                      <div key={id} className="card" style={{ marginBottom: "8px" }}>
+                        <strong>{w?.name || "Unknown"}</strong> - Sets: {val.sets} Reps: {val.reps}
                       </div>
                     );
                   })}
-                </div>
+                </Accordion>
               ))}
             </>
           )}
 
-          {tab === "all" && (
+          {currentTab === "all" && (
             <>
               <h2>All Workouts</h2>
-              {daysOfWeek.map((day) => (
-                <Accordion
-                  key={day}
-                  day={day}
-                  expanded={!!expandedDays[day]}
-                  onToggle={toggleDay}
-                >
-                  {(workouts[day] || []).map((ex) => (
+              {daysOfWeek.map(day => (
+                <Accordion key={day} day={day} expanded={expandedDays[day]} onToggle={toggleDay}>
+                  {(workouts[day] || []).map(ex => (
                     <div key={ex.id} className="card" style={{ marginBottom: 12 }}>
                       <h4>{ex.name}</h4>
                       <p style={{ fontStyle: "italic", marginBottom: 8 }}>{ex.notes}</p>
-                      <p>
-                        Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}
-                      </p>
+                      <p>Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}</p>
                     </div>
                   ))}
                 </Accordion>
@@ -482,17 +494,17 @@ export default function Home() {
           )}
         </main>
 
-        <nav className="bottom-nav" role="tablist" aria-label="Navigation">
-          <button onClick={() => setTab("today")} className={tab === "today" ? "active" : ""} aria-selected={tab === "today"} role="tab">
-            <FaDumbbell />
+        <nav className="bottom-nav" role="tablist" aria-label="Main navigation">
+          <button onClick={() => setCurrentTab("today")} className={currentTab === "today" ? "active" : ""} role="tab" aria-selected={currentTab === "today"}>
+            <FaDumbbell size={24} />
             Today
           </button>
-          <button onClick={() => setTab("history")} className={tab === "history" ? "active" : ""} aria-selected={tab === "history"} role="tab">
-            <FaHistory />
+          <button onClick={() => setCurrentTab("history")} className={currentTab === "history" ? "active" : ""} role="tab" aria-selected={currentTab === "history"}>
+            <FaHistory size={24} />
             History
           </button>
-          <button onClick={() => setTab("all")} className={tab === "all" ? "active" : ""} aria-selected={tab === "all"} role="tab">
-            <FaListUl />
+          <button onClick={() => setCurrentTab("all")} className={currentTab === "all" ? "active" : ""} role="tab" aria-selected={currentTab === "all"}>
+            <FaListUl size={24} />
             All
           </button>
         </nav>
@@ -500,7 +512,6 @@ export default function Home() {
     </>
   );
 }
-
 function Accordion({ day, expanded, onToggle, children }) {
   return (
     <section className="accordion">
@@ -515,37 +526,39 @@ function Accordion({ day, expanded, onToggle, children }) {
         <span>{day}</span>
         {expanded ? <FaChevronUp /> : <FaChevronDown />}
       </header>
-      <div className={`accordion-content${expanded ? " expanded" : ""}`}>{children}</div>
+      <div className={`accordion-content${expanded ? " expanded" : ""}`}>
+        {children}
+      </div>
       <style jsx>{`
         .accordion {
           background: #222;
           border-radius: 14px;
           box-shadow: 0 0 10px #000a;
-          margin-bottom: 20px;
+          margin-bottom: 24px;
           user-select: none;
         }
         .accordion-header {
           padding: 14px 20px;
-          font-weight: 700;
-          font-size: 1.1rem;
-          color: #90d090;
           cursor: pointer;
-          border-bottom: 1px solid #304030;
+          color: #7bc37b;
+          font-weight: 700;
+          font-size: 1.15rem;
           display: flex;
           justify-content: space-between;
           align-items: center;
+          border-bottom: 1px solid #304030;
           border-radius: 14px 14px 0 0;
+          user-select: none;
         }
         .accordion-content {
-          padding: 0 20px;
-          overflow: hidden;
           max-height: 0;
-          transition: max-height 0.3s ease;
+          overflow: hidden;
+          transition: max-height 0.4s ease;
+          padding: 0 20px;
         }
         .accordion-content.expanded {
           max-height: 1000px;
-          padding-top: 15px;
-          padding-bottom: 20px;
+          padding: 14px 20px 20px;
         }
       `}</style>
     </section>
