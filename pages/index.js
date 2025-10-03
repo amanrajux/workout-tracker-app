@@ -52,26 +52,42 @@ const workoutsData = {
   ],
 };
 
-const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const daysOfWeek = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 const setsOptions = [3, 4];
 const repsOptions = [8, 10, 12];
-const manualLabel = "Manual Entry";
+const manualLabel = "Manual";
 
 export default function Home() {
-  const [currentTab, setCurrentTab] = useState("today");
+  const [tab, setTab] = useState("today");
   const [completions, setCompletions] = useState(() => {
-    if (typeof window !== "undefined") return JSON.parse(localStorage.getItem("workoutCompletions") || "{}");
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("workoutCompletions");
+      return saved ? JSON.parse(saved) : {};
+    }
     return {};
   });
   const [filterDate, setFilterDate] = useState("");
+  const [expandedDays, setExpandedDays] = useState({});
 
   useEffect(() => {
-    if (typeof window !== "undefined") document.body.classList.add("dark");
+    if (typeof window !== "undefined") {
+      document.body.classList.add("dark");
+    }
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") localStorage.setItem("workoutCompletions", JSON.stringify(completions));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("workoutCompletions", JSON.stringify(completions));
+    }
   }, [completions]);
 
   function saveCompletion(day, id, data) {
@@ -83,118 +99,97 @@ export default function Home() {
     });
   }
 
-  function completedWorkoutsForDate(date) {
-    if (!date) return {};
-    const filtered = {};
+  function completedByDate(date) {
+    if (!date) return completions;
+    let result = {};
     Object.entries(completions).forEach(([day, exs]) => {
-      Object.entries(exs).forEach(([exId, val]) => {
+      Object.entries(exs).forEach(([id, val]) => {
         if (val.timestamp && val.timestamp.startsWith(date)) {
-          if (!filtered[day]) filtered[day] = {};
-          filtered[day][exId] = val;
+          result[day] = result[day] || {};
+          result[day][id] = val;
         }
       });
     });
-    return filtered;
+    return result;
   }
 
-  const filteredCompletions = filterDate ? completedWorkoutsForDate(filterDate) : completions;
+  const filteredCompletions = completedByDate(filterDate);
   const today = daysOfWeek[new Date().getDay()];
 
-  const WorkoutCard = ({ day, exercise, interactive }) => {
-    const saved = completions[day]?.[exercise.id];
-    const [selectedSets, setSelectedSets] = useState(saved?.sets || null);
-    const [selectedReps, setSelectedReps] = useState(saved?.reps || null);
-    const [manualReps, setManualReps] = useState(saved?.manualReps || "");
-    const [markedDone, setMarkedDone] = useState(!!saved?.done);
+  function toggleDay(day) {
+    setExpandedDays((prev) => ({ ...prev, [day]: !prev[day] }));
+  }
+
+  const WorkoutCard = ({ ex, day, interactive }) => {
+    const saved = completions[day]?.[ex.id];
+    const [sets, setSets] = useState(saved?.sets || null);
+    const [reps, setReps] = useState(saved?.reps || null);
+    const [manual, setManual] = useState(saved?.manual || "");
+    const [done, setDone] = useState(saved?.done || false);
 
     useEffect(() => {
-      setSelectedSets(saved?.sets || null);
-      setSelectedReps(saved?.reps || null);
-      setManualReps(saved?.manualReps || "");
-      setMarkedDone(!!saved?.done);
+      setSets(saved?.sets || null);
+      setReps(saved?.reps || null);
+      setManual(saved?.manual || "");
+      setDone(saved?.done || false);
     }, [saved]);
 
-    function markDone() {
-      if (!markedDone && selectedSets && (selectedReps || selectedReps === 0)) {
-        saveCompletion(day, exercise.id, {
+    function toggleDone() {
+      if (!done && sets && (reps || reps === 0)) {
+        saveCompletion(day, ex.id, {
           done: true,
-          sets: selectedSets,
-          reps: selectedReps === manualLabel ? manualReps : selectedReps,
-          manualReps: selectedReps === manualLabel ? manualReps : null,
+          sets,
+          reps: reps === manualLabel ? manual : reps,
+          manual: reps === manualLabel ? manual : null,
           timestamp: new Date().toISOString(),
         });
-        setMarkedDone(true);
+        setDone(true);
       } else {
-        saveCompletion(day, exercise.id, null);
-        setMarkedDone(false);
+        saveCompletion(day, ex.id, null);
+        setDone(false);
       }
     }
 
     return (
-      <div className={`card ${markedDone ? "done" : ""}`}>
+      <div className={`card${done ? " done" : ""}`}>
         <div className="card-header">
-          <h3>{exercise.name}</h3>
-          {markedDone && <FaCheckCircle className="done-icon" />}
+          <h4>{ex.name}</h4>
+          {done && <FaCheckCircle className="done-icon" />}
         </div>
-        <p className="notes">{exercise.notes}</p>
-        {interactive && !markedDone && (
-          <div className="select-group">
-            <div className="sets-group">
+        <p className="notes">{ex.notes}</p>
+        {interactive && !done && (
+          <div className="selectors">
+            <div className="sets">
               <span>Sets:</span>
-              {setsOptions.map((opt) => (
-                <button
-                  key={opt}
-                  className={selectedSets === opt ? "selected" : ""}
-                  onClick={() => setSelectedSets(opt)}
-                  type="button"
-                >
-                  {opt}
+              {setsOptions.map((n) => (
+                <button key={n} className={sets === n ? "selected" : ""} onClick={() => setSets(n)}>
+                  {n}
                 </button>
               ))}
             </div>
-            <div className="reps-group">
+            <div className="reps">
               <span>Reps:</span>
-              {repsOptions.map((opt) => (
-                <button
-                  key={opt}
-                  className={selectedReps === opt ? "selected" : ""}
-                  onClick={() => setSelectedReps(opt)}
-                  type="button"
-                >
-                  {opt}
+              {repsOptions.map((n) => (
+                <button key={n} className={reps === n ? "selected" : ""} onClick={() => setReps(n)}>
+                  {n}
                 </button>
               ))}
-              <button
-                onClick={() => setSelectedReps(manualLabel)}
-                className={selectedReps === manualLabel ? "selected" : ""}
-                type="button"
-              >
+              <button className={reps === manualLabel ? "selected" : ""} onClick={() => setReps(manualLabel)}>
                 {manualLabel}
               </button>
-              {selectedReps === manualLabel && (
-                <input
-                  type="number"
-                  min="1"
-                  placeholder="Enter reps"
-                  value={manualReps}
-                  onChange={(e) => setManualReps(e.target.value)}
-                  aria-label="Manual reps input"
-                />
+              {reps === manualLabel && (
+                <input type="number" min="1" value={manual} onChange={(e) => setManual(e.target.value)} placeholder="Reps" />
               )}
             </div>
           </div>
         )}
         {interactive && (
           <button
-            disabled={
-              !markedDone &&
-              (!selectedSets || (!selectedReps && selectedReps !== manualLabel))
-            }
-            className={`mark-btn ${markedDone ? "undo" : ""}`}
-            onClick={markDone}
-            type="button"
+            disabled={!sets || (reps === null && reps !== 0)}
+            className={`btn-mark${done ? " undo" : ""}`}
+            onClick={toggleDone}
           >
-            {markedDone ? (
+            {done ? (
               <>
                 <FaUndoAlt /> Undo
               </>
@@ -208,250 +203,308 @@ export default function Home() {
 
         <style jsx>{`
           .card {
-            background: #121212;
+            background: #1a1a1a;
             color: #ddd;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
-            transition: background-color 0.3s ease;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            box-shadow: 0 4px 7px #0009;
           }
-          .card.done {
-            background: #263529;
-            box-shadow: 0 0 20px #3dcc79aa;
+          .done {
+            background: #2a4d2a;
             color: #adebad;
+            box-shadow: 0 0 15px #287328;
           }
           .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
           }
-          h3 {
-            margin: 0 0 0.5rem;
-            user-select: none;
+          h4 {
+            margin: 0;
           }
           .notes {
             font-style: italic;
-            margin-bottom: 1rem;
-            opacity: 0.7;
-            user-select: none;
+            font-size: 0.85em;
+            margin: 6px 0 10px 0;
           }
-          .select-group {
+          .selectors {
             display: flex;
-            gap: 20px;
-            margin-bottom: 1rem;
+            gap: 1rem;
             flex-wrap: wrap;
+            margin-bottom: 10px;
           }
-          .sets-group,
-          .reps-group {
+          .sets, .reps {
             display: flex;
+            gap: 6px;
             align-items: center;
-            gap: 8px;
           }
-          span {
+          .sets span, .reps span {
             font-weight: 600;
-            min-width: 50px;
             user-select: none;
+            min-width: 40px;
           }
           button {
-            background-color: #256d5b;
+            background: #2a4d2a;
             border: none;
-            padding: 8px 14px;
-            border-radius: 12px;
-            color: #eee;
+            padding: 6px 10px;
+            border-radius: 10px;
+            color: #ddd;
             font-weight: 600;
             cursor: pointer;
             user-select: none;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.2s ease;
           }
           button.selected,
-          button:hover:not(:disabled) {
-            background-color: #2dbb7a;
-            box-shadow: 0 0 10px #2dbb7aaa;
+          button:hover {
+            background: #3cae3c;
+            box-shadow: 0 0 10px #43d843;
+            color: white;
           }
           button:disabled {
-            background-color: #1a432a;
+            opacity: 0.4;
             cursor: not-allowed;
-            opacity: 0.7;
           }
-          input {
-            width: 70px;
-            padding: 6px 8px;
-            border-radius: 8px;
-            border: 1.5px solid #2dbb7a;
-            background-color: #233623;
-            color: #adebad;
+          input[type="number"] {
+            width: 3rem;
+            padding: 4px;
+            border-radius: 6px;
+            background: #262626;
+            border: 1px solid #3cae3c;
+            color: #adffad;
             font-weight: 600;
-            font-family: "Inter", sans-serif;
+            user-select: auto;
           }
-          .mark-btn {
+          .btn-mark {
             width: 100%;
-            padding: 12px 0;
-            border-radius: 30px;
-            background-color: #256d5b;
-            font-weight: 800;
-            font-size: 1.1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            padding: 10px 0;
+            border-radius: 25px;
+            background: #287328;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #dbfcdc;
+            cursor: pointer;
             user-select: none;
           }
-          .mark-btn.undo {
-            background-color: #b33932;
+          .btn-mark.undo {
+            background: #a43232;
           }
           .done-icon {
-            font-size: 1.6rem;
-            color: #adebad;
-            filter: drop-shadow(0 0 6px #adebadcc);
+            color: #58d158;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 5px #4fb44f);
           }
         `}</style>
-      </div>
-    );
-  };
+      );
 
   return (
     <>
       <style jsx global>{`
-      body{
-        margin: 0;
-        font-family: "Inter", sans-serif;
-        background-color: #111;
-        color: #eee;
-        overflow-x: hidden;
-        min-height: 100vh;
-      }
-      main{
-        max-width: 480px;
-        margin: auto;
-        padding: 1rem 1rem 70px;
-        box-sizing: border-box;
-      }
-      header{
-        padding: 20px 10px 10px;
-        text-align: center;
-        font-weight: 900;
-        font-size: 1.8rem;
-        user-select: none;
-        color: #a3d8a5;
-      }
-      nav.bottom-nav{
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #1a1a1a;
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        padding: 0.8rem 1.5rem;
-        border-radius: 20px 20px 0 0;
-        box-shadow: 0 -2px 10px #0008;
-        height: 60px;
-        width: fit-content;
-        user-select: none;
-        z-index: 10;
-      }
-      nav.bottom-nav button{
-        background: none;
-        border: none;
-        color: #bfbfbf;
-        font-weight: 700;
-        font-size: 0.8rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.2rem;
-        cursor: pointer;
-        outline-offset: 2px;
-      }
-      nav.bottom-nav button.active{
-        color: #2ca785;
-      }
-      nav.bottom-nav button:hover:not(.active){
-        color: #2ca785;
-      }
+        body {
+          margin: 0;
+          font-family: "Inter", sans-serif;
+          background: #121212;
+          color: #ddd;
+          min-height: 100vh;
+          overflow-x: hidden;
+          padding-bottom: 64px; /* for fixed bottom nav */
+        }
+        main {
+          max-width: 480px;
+          margin: auto;
+          padding: 1rem;
+        }
+        header {
+          padding: 0.75rem 1rem;
+          text-align: center;
+          font-weight: 800;
+          font-size: 1.75rem;
+          user-select: none;
+          color: #87d887;
+        }
+        .accordion {
+          user-select: none;
+          margin-bottom: 20px;
+          border-radius: 12px;
+          background: #1f1f1f;
+          box-shadow: 0 4px 6px #0007;
+        }
+        .accordion-header {
+          cursor: pointer;
+          padding: 12px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          color: #a0d6a0;
+          font-weight: 700;
+          border-bottom: 1px solid #304230;
+        }
+        .accordion-content {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          padding: 0 20px;
+        }
+        .accordion-content.open {
+          max-height: 500px; /* ample height for content */
+          padding: 12px 20px;
+        }
+
+        nav.bottom-nav {
+          position: fixed;
+          bottom: 16px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #1f1f1f;
+          border-radius: 36px;
+          padding: 10px 30px;
+          display: flex;
+          gap: 50px;
+          box-shadow: 0 0 15px #1f1f1faa;
+          z-index: 100;
+        }
+
+        nav.bottom-nav button {
+          background: none;
+          border: none;
+          color: #888;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          user-select: none;
+          transition: color 0.3s ease;
+        }
+        nav.bottom-nav button.active,
+        nav.bottom-nav button:hover {
+          color: #6fbb6f;
+        }
       `}</style>
 
       <div>
         <header>Workout Tracker</header>
+
         <main>
-          {currentTab === "today" && (
+          {tab === "today" && (
             <>
-              <h2>Today's Workouts ({daysOfWeek[new Date().getDay()]})</h2>
+              <h2>{daysOfWeek[new Date().getDay()]}</h2>
               {workoutsData[daysOfWeek[new Date().getDay()]].map((ex) => (
-                <WorkoutCard key={ex.id} day={daysOfWeek[new Date().getDay()]} exercise={ex} interactive />
+                <WorkoutCard key={ex.id} ex={ex} day={daysOfWeek[new Date().getDay()]} interactive />
               ))}
             </>
           )}
 
-          {currentTab === "history" && (
+          {tab === "history" && (
             <>
-              <h2>Workout History</h2>
-              <label htmlFor="date">Filter date: </label>
-              <input id="date" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
-              {filterDate && <button onClick={() => setFilterDate("")} style={{ marginLeft: 8, background: "#b33932", color: "#fff", borderRadius: 4, border: "none" }}>Clear</button>}
-              {!filterDate && Object.keys(completions).length === 0 && <p>No workout history yet</p>}
-              {filterDate ? (
-                Object.entries(filteredCompletions).map(([day, exercises]) => (
-                  <section key={day}>
-                    <h3>{day}</h3>
-                    <hr style={{opacity: "0.25", borderTop:"1px solid #ccc"}}/>
-                    {Object.entries(exercises).map(([id, val]) => {
-                      const w = workoutsData[day].find(e => e.id == id);
-                      return (
-                        <div key={id} className="card" style={{marginBottom:"0.7em"}}>
-                          <p>{w ? w.name : "Unknown Exercise"} – Sets: {val.sets}, Reps: {val.reps}</p>
-                        </div>
-                      );
-                    })}
-                  </section>
-                ))
-              ) : (
-                <p>Please select a date above to see completed workouts.</p>
+              <h2>History</h2>
+              <label htmlFor="dateFilter" style={{display:"block",marginBottom:"8px"}}>
+                Filter on date
+              </label>
+              <input
+                id="dateFilter"
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                style={{
+                  padding:"8px 12px",
+                  fontSize:"1rem",
+                  width:"180px",
+                  borderRadius:"8px",
+                  border:"none",
+                  boxShadow:"inset 0 0 4px #233"
+                }}
+              />
+              {filterDate && (
+                <button onClick={() => setFilterDate("")} style={{
+                  marginLeft:"10px",
+                  background:"#bb4444",
+                  color:"#fff",
+                  border:"none",
+                  borderRadius:"5px",
+                  padding:"8px 14px",
+                  cursor:"pointer",
+                  userSelect:"none"
+                }}>
+                  Clear
+                </button>
               )}
+              <div style={{marginTop:"20px"}}>
+                {Object.entries(filteredCompletions).length === 0 && (
+                  <p>No records found for the selected date.</p>
+                )}
+                {Object.entries(filteredCompletions).map(([day, exs]) => (
+                  <div key={day} style={{marginBottom:"30px"}}>
+                    <h3>{day}</h3>
+                    <hr style={{border:"none",borderTop:"1px solid #466846",opacity:"0.5",marginBottom:"8px"}}/>
+                    {Object.entries(exs).map(([id, val]) => {
+                      const ex = workoutsData[day].find(e => e.id === Number(id));
+                      return <div key={id} className="card">{ex?.name || "Unknown"} - Sets: {val.sets}, Reps: {val.reps}</div>;
+                    })}
+                  </div>
+                ))}
+              </div>
             </>
           )}
 
-          {currentTab === "all" && (
+          {tab === "all" && (
             <>
               <h2>All Workouts</h2>
-              {daysOfWeek.map(day => (
-                <section key={day}>
-                  <h3>{day}</h3>
-                  <hr style={{opacity: "0.25", borderTop:"1px solid #ccc", marginBottom:"1rem"}}/>
-                  {(workoutsData[day] || []).length===0 ? (
-                    <p>No workouts scheduled for this day.</p>
-                  ) : (
-                    workoutsData[day].map(ex => (
-                      <div key={ex.id} className="card">
-                        <h4>{ex.name}</h4>
-                        <p><em>{ex.notes}</em></p>
-                        <p>Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}</p>
-                      </div>
-                    ))
-                  )}
-                </section>
+              {daysOfWeek.map((day) => (
+                <Accordion key={day} title={day}>
+                  {workoutsData[day].map((ex) => (
+                    <div key={ex.id} className="card" style={{marginBottom:"12px"}}>
+                      <h4 style={{marginTop:"0",marginBottom:"0.25rem"}}>{ex.name}</h4>
+                      <p style={{marginTop:"0",marginBottom:"0.25rem",fontStyle:"italic"}}>{ex.notes}</p>
+                      <p>
+                        Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}
+                      </p>
+                    </div>
+                  ))}
+                </Accordion>
               ))}
             </>
           )}
         </main>
 
-        <nav className="bottom-nav" role="tablist" aria-label="Main navigation">
-          <button aria-selected={currentTab === "today"} onClick={() => setCurrentTab("today")} role="tab" tabIndex={0}>
+        <nav className="bottom-nav" role="tablist" aria-label="Main Navigation">
+          <button onClick={() => setTab("today")} className={tab==="today" ? "active" : ""} aria-selected={tab==="today"} role="tab">
             <FaDumbbell size={24} />
             Today
           </button>
-          <button aria-selected={currentTab === "history"} onClick={() => setCurrentTab("history")} role="tab" tabIndex={0}>
+          <button onClick={() => setTab("history")} className={tab==="history" ? "active" : ""} aria-selected={tab==="history"} role="tab">
             <FaHistory size={24} />
             History
           </button>
-          <button aria-selected={currentTab === "all"} onClick={() => setCurrentTab("all")} role="tab" tabIndex={0}>
+          <button onClick={() => setTab("all")} className={tab==="all" ? "active" : ""} aria-selected={tab==="all"} role="tab">
             <FaListUl size={24} />
             All
           </button>
         </nav>
       </div>
     </>
+  );
+}
+
+function Accordion({title, children}) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  return (
+    <section className="accordion">
+      <header className="accordion-header" onClick={() => setIsOpen(!isOpen)} tabIndex={0} onKeyDown={(e)=>{if(e.key==="Enter") setIsOpen(!isOpen)}}>
+        <span>{title}</span>
+        {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+      </header>
+      <div className={`accordion-content ${isOpen ? "open" : ""}`}>
+        {children}
+      </div>
+      <style jsx>{`
+        .accordion { margin-bottom: 1.5rem; border-radius: 12px; background: #1f1f1f; box-shadow: 0 4px 6px #0007; }
+        .accordion-header { cursor: pointer; color: #a0d6a0; font-weight: 700; padding: 12px 1.25rem; border-bottom: 1px solid #304230; display: flex; justify-content: space-between; align-items: center; user-select: none;}
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; padding: 0 1.25rem;}
+        .accordion-content.open { max-height: 1000px; padding: 1rem 1.25rem; }
+      `}</style>
+    </section>
   );
 }
