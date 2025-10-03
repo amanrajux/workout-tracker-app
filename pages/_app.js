@@ -8,17 +8,5 @@ export default function MyApp({ Component, pageProps }) {
     document.head.appendChild(link);
   }, []);
 
-  return (
-    <>
-      <style jsx global>{`
-        body {
-          font-family: "Inter", sans-serif;
-          margin: 0;
-          padding: 0;
-          /* background and color handled at page level for dark/light mode toggle */
-        }
-      `}</style>
-      <Component {...pageProps} />
-    </>
-  );
+  return <Component {...pageProps} />;
 }
