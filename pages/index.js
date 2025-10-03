@@ -11,254 +11,50 @@ import {
 
 const workoutsData = {
   Monday: [
-    {
-      id: 1,
-      name: "Chest Press Machine",
-      sets: 4,
-      reps: [8, 10, 12],
-      notes: "Primary Compound Lift",
-      caloriesPerSet: 8,
-    },
-    {
-      id: 2,
-      name: "Shoulder Press Machine",
-      sets: 3,
-      reps: [8, 10, 12],
-      notes: "Controlled descent",
-      caloriesPerSet: 7,
-    },
-    {
-      id: 3,
-      name: "Pec Fly Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Focus on squeeze",
-      caloriesPerSet: 6,
-    },
-    {
-      id: 4,
-      name: "Lateral Raise Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Strict, slow movement",
-      caloriesPerSet: 5,
-    },
-    {
-      id: 5,
-      name: "Triceps Extension Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Full contraction",
-      caloriesPerSet: 5,
-    },
-    {
-      id: 6,
-      name: "Abdominal Machine",
-      sets: 3,
-      reps: [15, 20],
-      notes: "Slow and controlled crunch",
-      caloriesPerSet: 7,
-    },
+    { id: 1, name: "Chest Press Machine", sets: 4, reps: [8, 10, 12], notes: "Primary Compound Lift", caloriesPerSet: 8 },
+    { id: 2, name: "Shoulder Press Machine", sets: 3, reps: [8, 10, 12], notes: "Controlled descent", caloriesPerSet: 7 },
+    { id: 3, name: "Pec Fly Machine", sets: 3, reps: [12, 15], notes: "Focus on squeeze", caloriesPerSet: 6 },
+    { id: 4, name: "Lateral Raise Machine", sets: 3, reps: [12, 15], notes: "Strict, slow movement", caloriesPerSet: 5 },
+    { id: 5, name: "Triceps Extension Machine", sets: 3, reps: [12, 15], notes: "Full contraction", caloriesPerSet: 5 },
+    { id: 6, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Slow and controlled crunch", caloriesPerSet: 7 },
   ],
   Tuesday: [
-    {
-      id: 7,
-      name: "Seated Leg Press",
-      sets: 4,
-      reps: [10, 12],
-      notes: "Primary Compound Lift, full range",
-      caloriesPerSet: 9,
-    },
-    {
-      id: 8,
-      name: "Leg Extension Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Squeeze at the top",
-      caloriesPerSet: 8,
-    },
-    {
-      id: 9,
-      name: "Seated Leg Curl Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Focus on the negative",
-      caloriesPerSet: 8,
-    },
-    {
-      id: 10,
-      name: "Hip Adduction Machine",
-      sets: 3,
-      reps: [15, 20],
-      notes: "Squeeze glutes",
-      caloriesPerSet: 6,
-    },
-    {
-      id: 11,
-      name: "Glute Extension Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Peak contraction",
-      caloriesPerSet: 7,
-    },
-    {
-      id: 12,
-      name: "Calf Extension Machine",
-      sets: 3,
-      reps: [15, 20],
-      notes: "Full stretch and squeeze",
-      caloriesPerSet: 5,
-    },
+    { id: 7, name: "Seated Leg Press", sets: 4, reps: [10, 12], notes: "Primary Compound Lift, full range", caloriesPerSet: 9 },
+    { id: 8, name: "Leg Extension Machine", sets: 3, reps: [12, 15], notes: "Squeeze at the top", caloriesPerSet: 8 },
+    { id: 9, name: "Seated Leg Curl Machine", sets: 3, reps: [12, 15], notes: "Focus on the negative", caloriesPerSet: 8 },
+    { id: 10, name: "Hip Adduction Machine", sets: 3, reps: [15, 20], notes: "Squeeze glutes", caloriesPerSet: 6 },
+    { id: 11, name: "Glute Extension Machine", sets: 3, reps: [12, 15], notes: "Peak contraction", caloriesPerSet: 7 },
+    { id: 12, name: "Calf Extension Machine", sets: 3, reps: [15, 20], notes: "Full stretch and squeeze", caloriesPerSet: 5 },
   ],
   Wednesday: [
-    {
-      id: 20,
-      name: "Active Rest / Stretching",
-      sets: 1,
-      reps: ["30-45 Min"],
-      notes: "Light walk/mobility, optional light cardio",
-      caloriesPerSet: 1,
-    },
+    { id: 20, name: "Active Rest / Stretching", sets: 1, reps: ["30-45 Min"], notes: "Light walk/mobility, optional light cardio", caloriesPerSet: 1 },
   ],
   Thursday: [
-    {
-      id: 21,
-      name: "Lat Pulldown Machine",
-      sets: 4,
-      reps: [8, 10, 12],
-      notes: "Pull with elbows, squeeze back",
-      caloriesPerSet: 8,
-    },
-    {
-      id: 22,
-      name: "Seated Row Machine",
-      sets: 3,
-      reps: [8, 10, 12],
-      notes: "Pull to lower abs",
-      caloriesPerSet: 7,
-    },
-    {
-      id: 23,
-      name: "Assist Dip/Chin Machine",
-      sets: 3,
-      reps: [8, 10],
-      notes: "Minimal assistance needed",
-      caloriesPerSet: 7,
-    },
-    {
-      id: 24,
-      name: "Rear Delt Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Reverse pec fly for rear delts",
-      caloriesPerSet: 5,
-    },
-    {
-      id: 25,
-      name: "Bicep Curl Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Controlled descent",
-      caloriesPerSet: 5,
-    },
-    {
-      id: 26,
-      name: "Back Extension Machine",
-      sets: 3,
-      reps: [12, 15],
-      notes: "Controlled lower back/core strength",
-      caloriesPerSet: 6,
-    },
+    { id: 21, name: "Lat Pulldown Machine", sets: 4, reps: [8, 10, 12], notes: "Pull with elbows, squeeze back", caloriesPerSet: 8 },
+    { id: 22, name: "Seated Row Machine", sets: 3, reps: [8, 10, 12], notes: "Pull to lower abs", caloriesPerSet: 7 },
+    { id: 23, name: "Assist Dip/Chin Machine", sets: 3, reps: [8, 10], notes: "Minimal assistance needed", caloriesPerSet: 7 },
+    { id: 24, name: "Rear Delt Machine", sets: 3, reps: [12, 15], notes: "Reverse pec fly for rear delts", caloriesPerSet: 5 },
+    { id: 25, name: "Bicep Curl Machine", sets: 3, reps: [12, 15], notes: "Controlled descent", caloriesPerSet: 5 },
+    { id: 26, name: "Back Extension Machine", sets: 3, reps: [12, 15], notes: "Controlled lower back/core strength", caloriesPerSet: 6 },
   ],
   Friday: [
-    {
-      id: 27,
-      name: "Seated Leg Curl Machine",
-      sets: 4,
-      reps: [10, 12],
-      notes: "Heavy focus on hamstrings",
-      caloriesPerSet: 9,
-    },
-    {
-      id: 28,
-      name: "Inclined Leg Press",
-      sets: 3,
-      reps: [10, 12],
-      notes: "Feet higher for glute/ham emphasis",
-      caloriesPerSet: 8,
-    },
-    {
-      id: 29,
-      name: "Super Squats Machine",
-      sets: 3,
-      reps: [10, 12],
-      notes: "High rep quad/glute work",
-      caloriesPerSet: 8,
-    },
-    {
-      id: 30,
-      name: "Leg Raises (Captain's Chair)",
-      sets: 3,
-      reps: [15, 20],
-      notes: "Supported vertical leg raises",
-      caloriesPerSet: 6,
-    },
-    {
-      id: 31,
-      name: "Russian Twist",
-      sets: 3,
-      reps: ["15/side"],
-      notes: "Use dumbbell or plate",
-      caloriesPerSet: 5,
-    },
-    {
-      id: 32,
-      name: "Abdominal Machine",
-      sets: 3,
-      reps: [15, 20],
-      notes: "Heavier abdominal focus",
-      caloriesPerSet: 7,
-    },
+    { id: 27, name: "Seated Leg Curl Machine", sets: 4, reps: [10, 12], notes: "Heavy focus on hamstrings", caloriesPerSet: 9 },
+    { id: 28, name: "Inclined Leg Press", sets: 3, reps: [10, 12], notes: "Feet higher for glute/ham emphasis", caloriesPerSet: 8 },
+    { id: 29, name: "Super Squats Machine", sets: 3, reps: [10, 12], notes: "High rep quad/glute work", caloriesPerSet: 8 },
+    { id: 30, name: "Leg Raises (Captain's Chair)", sets: 3, reps: [15, 20], notes: "Supported vertical leg raises", caloriesPerSet: 6 },
+    { id: 31, name: "Russian Twist", sets: 3, reps: ["15/side"], notes: "Use dumbbell or plate", caloriesPerSet: 5 },
+    { id: 32, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Heavier abdominal focus", caloriesPerSet: 7 },
   ],
   Saturday: [
-    {
-      id: 33,
-      name: "Extended Cardio (Elliptical/Stairs/Treadmill)",
-      sets: 1,
-      reps: ["45-50 Min"],
-      notes: "Steady state high calorie burn",
-      caloriesPerSet: 130,
-    },
-    {
-      id: 34,
-      name: "Stretching / Foam Rolling",
-      sets: 1,
-      reps: ["10-15 Min"],
-      notes: "Dedicated mobility work",
-      caloriesPerSet: 1,
-    },
+    { id: 33, name: "Extended Cardio (Elliptical/Stairs/Treadmill)", sets: 1, reps: ["45-50 Min"], notes: "Steady state high calorie burn", caloriesPerSet: 130 },
+    { id: 34, name: "Stretching / Foam Rolling", sets: 1, reps: ["10-15 Min"], notes: "Dedicated mobility work", caloriesPerSet: 1 },
   ],
   Sunday: [
-    {
-      id: 35,
-      name: "Full Rest",
-      sets: 0,
-      reps: [],
-      notes: "Prioritize sleep and nutrition",
-      caloriesPerSet: 0,
-    },
+    { id: 35, name: "Full Rest", sets: 0, reps: [], notes: "Prioritize sleep and nutrition", caloriesPerSet: 0 },
   ],
 };
 
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const setsOptions = [3, 4];
 const repsOptions = [8, 10, 12];
@@ -273,7 +69,6 @@ export default function Home() {
     }
     return {};
   });
-
   const [filterDate, setFilterDate] = useState("");
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
@@ -285,7 +80,6 @@ export default function Home() {
 
   const today = daysOfWeek[new Date().getDay()];
 
-  // Sync dark mode class on the body element for global styles
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (darkMode) document.body.classList.add("dark");
@@ -303,11 +97,8 @@ export default function Home() {
   function saveCompletion(day, exerciseId, data) {
     setCompletions((prev) => {
       const dayData = prev[day] || {};
-      if (data === null) {
-        delete dayData[exerciseId];
-      } else {
-        dayData[exerciseId] = data;
-      }
+      if (data === null) delete dayData[exerciseId];
+      else dayData[exerciseId] = data;
       return { ...prev, [day]: dayData };
     });
   }
@@ -661,12 +452,7 @@ export default function Home() {
               <h2>{today}'s Workout</h2>
               {(workoutsData[today] || []).length === 0 && <p>No workouts today.</p>}
               {(workoutsData[today] || []).map((exercise) => (
-                <WorkoutCard
-                  key={exercise.id}
-                  day={today}
-                  exercise={exercise}
-                  interactive
-                />
+                <WorkoutCard key={exercise.id} day={today} exercise={exercise} interactive />
               ))}
             </>
           )}
@@ -836,4 +622,3 @@ export default function Home() {
     </>
   );
 }
-
