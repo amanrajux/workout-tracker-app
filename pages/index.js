@@ -52,50 +52,33 @@ const workoutsData = {
   ],
 };
 
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
 const setsOptions = [3, 4];
 const repsOptions = [8, 10, 12];
-const manualEntryLabel = "Manual Entry";
+const manualLabel = "Manual Entry";
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState("today");
   const [completions, setCompletions] = useState(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(localStorage.getItem("workoutCompletions") || "{}");
-    }
+    if (typeof window !== "undefined") return JSON.parse(localStorage.getItem("workoutCompletions") || "{}");
     return {};
   });
   const [filterDate, setFilterDate] = useState("");
 
-  // Apply dark mode on body on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      document.body.classList.add("dark");
-    }
+    if (typeof window !== "undefined") document.body.classList.add("dark");
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("workoutCompletions", JSON.stringify(completions));
-    }
+    if (typeof window !== "undefined") localStorage.setItem("workoutCompletions", JSON.stringify(completions));
   }, [completions]);
 
-  function saveCompletion(day, exerciseId, data) {
+  function saveCompletion(day, id, data) {
     setCompletions((prev) => {
       const dayData = prev[day] || {};
-      if (data === null) {
-        delete dayData[exerciseId];
-      } else {
-        dayData[exerciseId] = data;
-      }
+      if (data) dayData[id] = data;
+      else delete dayData[id];
       return { ...prev, [day]: dayData };
     });
   }
@@ -136,8 +119,8 @@ export default function Home() {
         saveCompletion(day, exercise.id, {
           done: true,
           sets: selectedSets,
-          reps: selectedReps === manualEntryLabel ? manualReps : selectedReps,
-          manualReps: selectedReps === manualEntryLabel ? manualReps : null,
+          reps: selectedReps === manualLabel ? manualReps : selectedReps,
+          manualReps: selectedReps === manualLabel ? manualReps : null,
           timestamp: new Date().toISOString(),
         });
         setMarkedDone(true);
@@ -182,13 +165,13 @@ export default function Home() {
                 </button>
               ))}
               <button
-                onClick={() => setSelectedReps(manualEntryLabel)}
-                className={selectedReps === manualEntryLabel ? "selected" : ""}
+                onClick={() => setSelectedReps(manualLabel)}
+                className={selectedReps === manualLabel ? "selected" : ""}
                 type="button"
               >
-                {manualEntryLabel}
+                {manualLabel}
               </button>
-              {selectedReps === manualEntryLabel && (
+              {selectedReps === manualLabel && (
                 <input
                   type="number"
                   min="1"
@@ -205,7 +188,7 @@ export default function Home() {
           <button
             disabled={
               !markedDone &&
-              (!selectedSets || (!selectedReps && selectedReps !== manualEntryLabel))
+              (!selectedSets || (!selectedReps && selectedReps !== manualLabel))
             }
             className={`mark-btn ${markedDone ? "undo" : ""}`}
             onClick={markDone}
@@ -230,7 +213,7 @@ export default function Home() {
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
             transition: background-color 0.3s ease;
           }
           .card.done {
@@ -244,7 +227,7 @@ export default function Home() {
             align-items: center;
           }
           h3 {
-            margin: 0 0 0.5rem 0;
+            margin: 0 0 0.5rem;
             user-select: none;
           }
           .notes {
@@ -330,68 +313,64 @@ export default function Home() {
   return (
     <>
       <style jsx global>{`
-        body {
-          margin: 0;
-          padding: 0;
-          font-family: "Inter", sans-serif;
-          background-color: #101210;
-          color: #ccc;
-          overflow-x: hidden;
-          min-height: 100vh;
-        }
-        main {
-          max-width: 480px;
-          margin: 0 auto;
-          padding: 1rem 1rem 66px; /* 66 height for bottom nav */
-          box-sizing: border-box;
-        }
-        header {
-          padding: 20px 15px 10px;
-          text-align: center;
-          font-weight: 900;
-          font-size: 1.8rem;
-          user-select: none;
-          color: #a3d8a5;
-        }
-        nav.bottom-nav {
-          position: fixed;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: #1a1a1a;
-          display: flex;
-          justify-content: center;
-          gap: 3rem;
-          padding: 0.8rem 1.5rem;
-          border-radius: 20px 20px 0 0;
-          box-shadow: 0 -2px 10px #0008;
-          height: 60px;
-          width: fit-content;
-          user-select: none;
-          z-index: 10;
-        }
-        nav.bottom-nav button {
-          background: none;
-          border: none;
-          color: #829f84;
-          font-weight: 700;
-          font-size: 0.8rem;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.2rem;
-          cursor: pointer;
-          outline-offset: 2px;
-          padding-top: 4px;
-          transition: color 0.3s ease;
-          width: 80px;
-        }
-        nav.bottom-nav button.active {
-          color: #a3d8a5;
-        }
-        nav.bottom-nav button:hover:not(.active) {
-          color: #a3d8a5;
-        }
+      body{
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background-color: #111;
+        color: #eee;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+      main{
+        max-width: 480px;
+        margin: auto;
+        padding: 1rem 1rem 70px;
+        box-sizing: border-box;
+      }
+      header{
+        padding: 20px 10px 10px;
+        text-align: center;
+        font-weight: 900;
+        font-size: 1.8rem;
+        user-select: none;
+        color: #a3d8a5;
+      }
+      nav.bottom-nav{
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #1a1a1a;
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -2px 10px #0008;
+        height: 60px;
+        width: fit-content;
+        user-select: none;
+        z-index: 10;
+      }
+      nav.bottom-nav button{
+        background: none;
+        border: none;
+        color: #bfbfbf;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+        cursor: pointer;
+        outline-offset: 2px;
+      }
+      nav.bottom-nav button.active{
+        color: #2ca785;
+      }
+      nav.bottom-nav button:hover:not(.active){
+        color: #2ca785;
+      }
       `}</style>
 
       <div>
@@ -405,33 +384,27 @@ export default function Home() {
               ))}
             </>
           )}
+
           {currentTab === "history" && (
             <>
               <h2>Workout History</h2>
-              <label>
-                Filter date:{" "}
-                <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
-                {filterDate && (
-                  <button style={{ marginLeft: "0.5rem", background: "#b33932", color: "#fff", borderRadius: "0.25rem" }} onClick={() => setFilterDate("")}>
-                    Clear
-                  </button>
-                )}
-              </label>
+              <label htmlFor="date">Filter date: </label>
+              <input id="date" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
+              {filterDate && <button onClick={() => setFilterDate("")} style={{ marginLeft: 8, background: "#b33932", color: "#fff", borderRadius: 4, border: "none" }}>Clear</button>}
               {!filterDate && Object.keys(completions).length === 0 && <p>No workout history yet</p>}
               {filterDate ? (
                 Object.entries(filteredCompletions).map(([day, exercises]) => (
                   <section key={day}>
                     <h3>{day}</h3>
-                    <ul>
-                      {Object.entries(exercises).map(([id, val]) => {
-                        const w = workoutsData[day].find((e) => e.id == id);
-                        return (
-                          <li key={id}>
-                            {w ? w.name : "Unknown Exercise"} - Sets: {val.sets}, Reps: {val.reps}
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    <hr style={{opacity: "0.25", borderTop:"1px solid #ccc"}}/>
+                    {Object.entries(exercises).map(([id, val]) => {
+                      const w = workoutsData[day].find(e => e.id == id);
+                      return (
+                        <div key={id} className="card" style={{marginBottom:"0.7em"}}>
+                          <p>{w ? w.name : "Unknown Exercise"} – Sets: {val.sets}, Reps: {val.reps}</p>
+                        </div>
+                      );
+                    })}
                   </section>
                 ))
               ) : (
@@ -439,22 +412,22 @@ export default function Home() {
               )}
             </>
           )}
+
           {currentTab === "all" && (
             <>
               <h2>All Workouts</h2>
-              {daysOfWeek.map((day) => (
+              {daysOfWeek.map(day => (
                 <section key={day}>
                   <h3>{day}</h3>
-                  {(workoutsData[day] || []).length === 0 ? (
+                  <hr style={{opacity: "0.25", borderTop:"1px solid #ccc", marginBottom:"1rem"}}/>
+                  {(workoutsData[day] || []).length===0 ? (
                     <p>No workouts scheduled for this day.</p>
                   ) : (
-                    workoutsData[day].map((ex) => (
-                      <div key={ex.id} className="readonlyCard">
+                    workoutsData[day].map(ex => (
+                      <div key={ex.id} className="card">
                         <h4>{ex.name}</h4>
-                        <p>{ex.notes}</p>
-                        <p>
-                          Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}
-                        </p>
+                        <p><em>{ex.notes}</em></p>
+                        <p>Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}</p>
                       </div>
                     ))
                   )}
