@@ -1,441 +1,601 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaDumbbell,
   FaHistory,
   FaListUl,
   FaCheckCircle,
   FaUndoAlt,
-  FaChevronDown,
-  FaChevronUp,
 } from "react-icons/fa";
 
 const workoutsData = {
   Monday: [
-    { id: 1, name: "Chest Press Machine", sets: 4, reps: [8, 10, 12], notes: "Primary Compound Lift" },
-    { id: 2, name: "Shoulder Press Machine", sets: 3, reps: [8, 10, 12], notes: "Controlled descent" },
-    { id: 3, name: "Pec Fly Machine", sets: 3, reps: [12, 15], notes: "Focus on squeeze" },
-    { id: 4, name: "Lateral Raise Machine", sets: 3, reps: [12, 15], notes: "Strict, slow movement" },
-    { id: 5, name: "Triceps Extension", sets: 3, reps: [12, 15], notes: "Full contraction" },
-    { id: 6, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Slow, controlled crunch" },
+    { id: 1, name: "Chest Press Machine", sets: 4, reps: [8, 10, 12], notes: "Primary Compound Lift", caloriesPerSet: 8 },
+    { id: 2, name: "Shoulder Press Machine", sets: 3, reps: [8, 10, 12], notes: "Controlled descent", caloriesPerSet: 7 },
+    { id: 3, name: "Pec Fly Machine", sets: 3, reps: [12, 15], notes: "Focus on squeeze", caloriesPerSet: 6 },
+    { id: 4, name: "Lateral Raise Machine", sets: 3, reps: [12, 15], notes: "Strict, slow movement", caloriesPerSet: 5 },
+    { id: 5, name: "Triceps Extension Machine", sets: 3, reps: [12, 15], notes: "Full contraction", caloriesPerSet: 5 },
+    { id: 6, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Slow and controlled crunch", caloriesPerSet: 7 },
   ],
-  /* include all days as per your original data */
-  Tuesday: [/*...*/],
-  Wednesday: [/*...*/],
-  Thursday: [/*...*/],
-  Friday: [/*...*/],
-  Saturday: [/*...*/],
-  Sunday: [/*...*/],
+  Tuesday: [
+    { id: 7, name: "Seated Leg Press", sets: 4, reps: [10, 12], notes: "Primary Compound Lift, full range", caloriesPerSet: 9 },
+    { id: 8, name: "Leg Extension Machine", sets: 3, reps: [12, 15], notes: "Squeeze at the top", caloriesPerSet: 8 },
+    { id: 9, name: "Seated Leg Curl Machine", sets: 3, reps: [12, 15], notes: "Focus on the negative", caloriesPerSet: 8 },
+    { id: 10, name: "Hip Adduction Machine", sets: 3, reps: [15, 20], notes: "Squeeze glutes", caloriesPerSet: 6 },
+    { id: 11, name: "Glute Extension Machine", sets: 3, reps: [12, 15], notes: "Peak contraction", caloriesPerSet: 7 },
+    { id: 12, name: "Calf Extension Machine", sets: 3, reps: [15, 20], notes: "Full stretch and squeeze", caloriesPerSet: 5 },
+  ],
+  Wednesday: [
+    { id: 20, name: "Active Rest / Stretching", sets: 1, reps: ["30-45 Min"], notes: "Light walk/mobility, optional light cardio", caloriesPerSet: 1 },
+  ],
+  Thursday: [
+    { id: 21, name: "Lat Pulldown Machine", sets: 4, reps: [8, 10, 12], notes: "Pull with elbows, squeeze back", caloriesPerSet: 8 },
+    { id: 22, name: "Seated Row Machine", sets: 3, reps: [8, 10, 12], notes: "Pull to lower abs", caloriesPerSet: 7 },
+    { id: 23, name: "Assist Dip/Chin Machine", sets: 3, reps: [8, 10], notes: "Minimal assistance needed", caloriesPerSet: 7 },
+    { id: 24, name: "Rear Delt Machine", sets: 3, reps: [12, 15], notes: "Reverse pec fly for rear delts", caloriesPerSet: 5 },
+    { id: 25, name: "Bicep Curl Machine", sets: 3, reps: [12, 15], notes: "Controlled descent", caloriesPerSet: 5 },
+    { id: 26, name: "Back Extension Machine", sets: 3, reps: [12, 15], notes: "Controlled lower back/core strength", caloriesPerSet: 6 },
+  ],
+  Friday: [
+    { id: 27, name: "Seated Leg Curl Machine", sets: 4, reps: [10, 12], notes: "Heavy focus on hamstrings", caloriesPerSet: 9 },
+    { id: 28, name: "Inclined Leg Press", sets: 3, reps: [10, 12], notes: "Feet higher for glute/ham emphasis", caloriesPerSet: 8 },
+    { id: 29, name: "Super Squats Machine", sets: 3, reps: [10, 12], notes: "High rep quad/glute work", caloriesPerSet: 8 },
+    { id: 30, name: "Leg Raises (Captain's Chair)", sets: 3, reps: [15, 20], notes: "Supported vertical leg raises", caloriesPerCalorie: 6 },
+    { id: 31, name: "Russian Twist", sets: 3, reps: ["15/side"], notes: "Use dumbbell or plate", caloriesPerCalorie: 5 },
+    { id: 32, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Heavier abdominal focus", caloriesPerCalorie: 7 },
+  ],
+  Saturday: [
+    { id: 33, name: "Extended Cardio (Elliptical/Stairs/Treadmill)", sets: 1, reps: ["45-50 Min"], notes: "Steady state high calorie burn", caloriesPerCalorie: 130 },
+    { id: 34, name: "Stretching / Foam Rolling", sets: 1, reps: ["10-15 Min"], notes: "Dedicated mobility work", caloriesPerCalorie: 1 },
+  ],
+  Sunday: [
+    { id: 35, name: "Full Rest", sets: 0, reps: [], notes: "Prioritize sleep and nutrition", caloriesPerCalorie: 0 },
+  ],
 };
 
-const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
 const setsOptions = [3, 4];
 const repsOptions = [8, 10, 12];
-const manualLabel = "Manual";
+const manualEntryLabel = "Manual Entry";
 
-export default function WorkoutApp() {
-  const [tab, setTab] = useState('today');
-  const [completions, setCompletions] = useState({});
-  const [filterDate, setFilterDate] = useState('');
-  const [expandedDays, setExpandedDays] = useState({});
+export default function Home() {
+  const [currentTab, setCurrentTab] = useState("today");
+  const [completions, setCompletions] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("workoutCompletions");
+      return saved ? JSON.parse(saved) : {};
+    }
+    return {};
+  });
+  const [filterDate, setFilterDate] = useState("");
 
   const today = daysOfWeek[new Date().getDay()];
-  
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('workoutCompletions');
-      if (stored) setCompletions(JSON.parse(stored));
+    if (typeof window !== "undefined") {
+      document.body.classList.add("dark");
     }
-    document.body.classList.add('dark');
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') localStorage.setItem('workoutCompletions', JSON.stringify(completions));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("workoutCompletions", JSON.stringify(completions));
+    }
   }, [completions]);
 
-  const toggleDay = (day) => {
-    setExpandedDays(prev => ({ ...prev, [day]: !prev[day] }));
-  };
-
-  const saveCompletion = (day, id, data) => {
-    setCompletions(prev => {
-      const dayData = { ...(prev[day] || {}) };
-      if (data) dayData[id] = data;
-      else delete dayData[id];
+  function saveCompletion(day, exerciseId, data) {
+    setCompletions((prev) => {
+      const dayData = prev[day] || {};
+      if (data === null) delete dayData[exerciseId];
+      else dayData[exerciseId] = data;
       return { ...prev, [day]: dayData };
     });
-  };
+  }
 
-  const getCompletedWorkoutsByDate = (date) => {
-    if (!date) return completions;
-    const result = {};
-    for (const [day, exs] of Object.entries(completions)) {
-      for (const [id, val] of Object.entries(exs)) {
-        if (val.timestamp?.startsWith(date)) {
-          if (!result[day]) result[day] = {};
-          result[day][id] = val;
+  function completedWorkoutsForDate(date) {
+    if (!date) return {};
+    return Object.entries(completions).reduce((res, [day, exs]) => {
+      Object.entries(exs).forEach(([exId, val]) => {
+        if (val.timestamp && val.timestamp.startsWith(date)) {
+          if (!res[day]) res[day] = {};
+          res[day][exId] = val;
         }
-      }
-    }
-    return result;
-  };
+      });
+      return res;
+    }, {});
+  }
 
-  const filteredCompletions = getCompletedWorkoutsByDate(filterDate);
+  const completionForFilteredDate = filterDate ? completedWorkoutsForDate(filterDate) : completions;
 
-  function WorkoutCard({ exercise, day, interactive }) {
-    const stored = completions?.[day]?.[exercise.id] || {};
-    const [sets, setSets] = useState(stored.sets || null);
-    const [reps, setReps] = useState(stored.reps || null);
-    const [manual, setManual] = useState(stored.manual || '');
-    const [done, setDone] = useState(stored.done || false);
-
-    const inputRef = useRef(null);
+  const WorkoutCard = ({ day, exercise, interactive }) => {
+    const saved = completions[day]?.[exercise.id];
+    const [selectedSets, setSelectedSets] = useState(saved?.sets || null);
+    const [selectedReps, setSelectedReps] = useState(saved?.reps || null);
+    const [manualReps, setManualReps] = useState(saved?.manualReps || "");
+    const [markedDone, setMarkedDone] = useState(!!saved?.done);
 
     useEffect(() => {
-      if (reps === manualLabel && inputRef.current) inputRef.current.focus();
-    }, [reps]);
+      setSelectedSets(saved?.sets || null);
+      setSelectedReps(saved?.reps || null);
+      setManualReps(saved?.manualReps || "");
+      setMarkedDone(!!saved?.done);
+    }, [saved]);
 
-    const handleMark = () => {
-      if (!done && sets && (reps || reps === 0)) {
-        const repToStore = reps === manualLabel ? manual : reps;
-        if (!repToStore) return alert('Please enter the number of reps.');
+    function markDone() {
+      if (!markedDone && selectedSets && (selectedReps || selectedReps === 0)) {
+        const timestamp = new Date().toISOString();
+        const dateOnly = timestamp.split('T')[0];
         saveCompletion(day, exercise.id, {
-          sets,
-          reps: repToStore,
-          manual: reps === manualLabel ? manual : null,
           done: true,
-          timestamp: new Date().toISOString()
+          sets: selectedSets,
+          reps: selectedReps === manualEntryLabel ? manualReps : selectedReps,
+          manualReps: selectedReps === manualEntryLabel ? manualReps : null,
+          timestamp: timestamp,
+          date: dateOnly,
         });
-        setDone(true);
+        setMarkedDone(true);
       } else {
         saveCompletion(day, exercise.id, null);
-        setDone(false);
+        setMarkedDone(false);
       }
-    };
+    }
 
     return (
-      <div className={`card${done ? ' done' : ''}`}>
+      <div className={`card ${markedDone ? "done" : ""}`}>
         <div className="card-header">
-          <h4>{exercise.name}</h4>
-          {done && <FaCheckCircle className="done-icon" />}
+          <h3>{exercise.name}</h3>
+          {markedDone && <FaCheckCircle className="done-icon" />}
         </div>
         <p className="notes">{exercise.notes}</p>
-        {interactive && !done && (
-          <>
-            <div className="selectors">
-              <div className="sets">
-                <span>Sets:</span>
-                {setsOptions.map(opt => (
-                  <button key={opt} className={sets === opt ? 'selected' : ''} onClick={() => setSets(opt)}>{opt}</button>
-                ))}
-              </div>
-              <div className="reps">
-                <span>Reps:</span>
-                {repsOptions.map(opt => (
-                  <button key={opt} className={reps === opt ? 'selected' : ''} onClick={() => setReps(opt)}>{opt}</button>
-                ))}
-                <button className={reps === manualLabel ? 'selected' : ''} onClick={() => setReps(manualLabel)}>{manualLabel}</button>
-                {reps === manualLabel && (
-                  <input
-                    ref={inputRef}
-                    type="number"
-                    min="1"
-                    value={manual}
-                    onChange={(e) => setManual(e.target.value)}
-                    placeholder="Enter reps"
-                    aria-label="Enter custom reps"
-                  />
-                )}
-              </div>
+        {interactive && !markedDone && (
+          <div className="select-group">
+            <div className="sets-group">
+              <span>Sets:</span>
+              {setsOptions.map((opt) => (
+                <button
+                  key={opt}
+                  className={selectedSets === opt ? "selected" : ""}
+                  onClick={() => setSelectedSets(opt)}
+                  type="button"
+                >
+                  {opt}
+                </button>
+              ))}
             </div>
-            <button
-              disabled={!sets || (reps === null) || (reps === manualLabel && manual === '')}
-              onClick={handleMark}
-              className="mark-btn"
-            >
-              Mark Done
-            </button>
-          </>
+            <div className="reps-group">
+              <span>Reps:</span>
+              {repsOptions.map((opt) => (
+                <button
+                  key={opt}
+                  className={selectedReps === opt ? "selected" : ""}
+                  onClick={() => setSelectedReps(opt)}
+                  type="button"
+                >
+                  {opt}
+                </button>
+              ))}
+              <button
+                onClick={() => setSelectedReps(manualEntryLabel)}
+                className={selectedReps === manualEntryLabel ? "selected" : ""}
+                type="button"
+              >
+                {manualEntryLabel}
+              </button>
+              {selectedReps === manualEntryLabel && (
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Enter reps"
+                  value={manualReps}
+                  onChange={(e) => setManualReps(e.target.value)}
+                  aria-label="Manual reps input"
+                />
+              )}
+            </div>
+          </div>
         )}
-        {interactive && done && (
-          <button onClick={handleMark} className="mark-btn undo">Undo</button>
+        {interactive && (
+          <button
+            disabled={
+              !markedDone &&
+              (!selectedSets || (!selectedReps && selectedReps !== manualEntryLabel))
+            }
+            className={`mark-btn ${markedDone ? "undo" : ""}`}
+            onClick={markDone}
+            type="button"
+          >
+            {markedDone ? (
+              <>
+                <FaUndoAlt /> Undo
+              </>
+            ) : (
+              <>
+                <FaCheckCircle /> Mark Done
+              </>
+            )}
+          </button>
         )}
+
         <style jsx>{`
           .card {
-            background: #121a17;
+            background: var(--card-bg);
             border-radius: 16px;
-            padding: 16px;
+            padding: 14px;
             margin-bottom: 16px;
-            color: #ddd;
-            box-shadow: 0 0 16px rgb(0 0 0 / 0.3);
-            transition: background 0.3s;
+            box-shadow: var(--card-shadow);
+            color: var(--text-color);
+            transition: box-shadow 0.3s ease;
           }
-          .done {
-            background: #2f5f4f;
-            box-shadow: 0 0 18px #3da84d;
-            color: #abddaa;
+          .card.done {
+            background: var(--card-done-bg);
+            box-shadow: var(--card-done-shadow);
+            color: var(--card-done-text);
           }
           .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
           }
-          h4 {
+          h3 {
             margin: 0 0 8px 0;
           }
           .notes {
             font-style: italic;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            opacity: 0.8;
           }
-          .selectors {
+          .select-group {
             display: flex;
-            gap: 16px;
+            gap: 12px;
+            margin-bottom: 14px;
             flex-wrap: wrap;
-            margin-bottom: 12px;
           }
-          .sets,
-          .reps {
+          .sets-group,
+          .reps-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
           }
           span {
-            min-width: 40px;
-            font-weight: 600;
-            user-select: none;
+            font-weight: 700;
           }
           button {
-            background: #2d6e50;
             border: none;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background-color: var(--accent-color);
             color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
             cursor: pointer;
-            user-select: none;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: background-color 0.3s ease;
+            user-select: none;
           }
           button.selected,
           button:hover:not(:disabled) {
-            background: #3fb974;
-            box-shadow: 0 0 12px #3fb974aa;
+            background-color: var(--accent-hover);
+            color: white;
+            box-shadow: 0 0 8px var(--accent-hover-shadow);
           }
-          button:disabled {
-            background: #194321;
-            cursor: not-allowed;
-            opacity: 0.5;
-          }
-          input[type='number'] {
-            width: 60px;
-            border-radius: 8px;
-            border: 1.5px solid #3fb974;
-            background: #254527;
-            color: #aee9a9;
-            padding: 6px 10px;
+          input {
+            width: 70px;
+            border-radius: 10px;
+            border: 1.5px solid var(--accent-color);
+            padding: 4px 8px;
             font-weight: 600;
-            font-family: 'Inter', sans-serif;
+            font-family: "Inter", sans-serif;
+            color: var(--text-color);
+            background: var(--input-bg);
           }
           .mark-btn {
             width: 100%;
-            padding: 14px 0;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            background: #286d4b;
+            padding: 10px;
+            border-radius: 20px;
+            background-color: var(--accent-color);
             color: white;
+            font-weight: 700;
+            font-size: 1rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s ease;
           }
-          .undo {
-            background: #ad3939;
+          .mark-btn[disabled] {
+            background-color: var(--accent-disabled);
+            cursor: not-allowed;
+            color: var(--accent-disabled-text);
+          }
+          .mark-btn.undo {
+            background-color: var(--undo-color);
+            color: var(--undo-text);
           }
           .done-icon {
-            color: #abddaa;
-            font-size: 24px;
-            filter: drop-shadow(0 0 5px #3da84d);
+            color: var(--accent-color);
+            font-size: 22px;
+            filter: drop-shadow(0 0 3px var(--accent-shadow));
           }
         `}</style>
       </div>
     );
-  }
+  };
 
   return (
     <>
       <style jsx global>{`
+        :root {
+          --accent-color: #256d5b;
+          --accent-hover: #2ca785;
+          --accent-hover-shadow: #2ca785bb;
+          --accent-shadow: #256d5baa;
+          --accent-disabled: #a5c4b7;
+          --accent-disabled-text: #5c6f67;
+          --undo-color: #c94c4c;
+          --undo-text: white;
+
+          --card-bg: #1a1a1a;
+          --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+          --card-done-bg: #2a2a2a;
+          --card-done-shadow: 0 0 20px rgba(37, 109, 91, 0.4);
+          --card-done-text: #aad3bb;
+          --text-color: #e6e6e6;
+          --input-bg: #2a2a2a;
+
+          --nav-bg: #1a1a1a;
+          --nav-text: #9fddd2;
+          --nav-border: #333333;
+          --nav-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
         body {
           margin: 0;
-          background: #121a17;
-          color: #ddd;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-          overflow-x: hidden;
+          font-family: "Inter", system-ui, sans-serif;
+          background-color: #0f0f0f;
+          color: var(--text-color);
+          transition: all 0.3s ease;
+          padding-top: 60px;
           min-height: 100vh;
-          padding-bottom: 72px;
-          transition: background 0.3s, color 0.3s;
+          overflow-x: hidden;
         }
-
-        * {
-          box-sizing: border-box;
-        }
-
         main {
           max-width: 480px;
           margin: 0 auto;
           padding: 1rem;
         }
-
-        header {
-          font-size: 1.8rem;
-          font-weight: 800;
-          padding: 1rem 0;
-          text-align: center;
-          color: #6cb56d;
-          user-select: none;
-        }
-
-        nav.bottom-nav {
+        .app-header {
           position: fixed;
-          bottom: 16px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: #233522;
-          border-radius: 36px;
-          padding: 10px 30px;
-          display: flex;
-          gap: 60px;
-          box-shadow: 0 3px 12px rgb(17 41 16 / 90%);
-          z-index: 1000;
-          user-select: none;
-        }
-
-        nav.bottom-nav button {
-          flex-grow: 1;
-          background: none;
-          border: none;
-          color: #7caa82;
-          font-weight: 600;
-          font-size: 0.9rem;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          cursor: pointer;
-          transition: color 0.3s;
-        }
-        nav.bottom-nav button:hover,
-        nav.bottom-nav button:focus-visible {
-          color: #a3cc9a;
-          outline: none;
-        }
-        nav.bottom-nav button.active {
-          color: #a3cc9a;
-          font-weight: 700;
-        }
-
-        .accordion {
-          background: #223322;
-          border-radius: 14px;
-          box-shadow: 0 4px 8px rgb(0 0 0 / 0.6);
-          margin-bottom: 20px;
-          user-select: none;
-        }
-        .accordion-header {
-          padding: 14px 22px;
-          font-size: 1.1rem;
-          font-weight: 700;
-          color: #a3cc9a;
-          cursor: pointer;
+          top: 60px;
+          left: 0;
+          right: 0;
+          max-width: 480px;
+          margin: 0 auto;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid #2c4c2c;
-          border-radius: 14px 14px 0 0;
+          padding: 1rem 1rem 0.5rem 1rem;
+          user-select: none;
+          color: var(--text-color);
+          background-color: #0f0f0f;
+          z-index: 999;
         }
-        .accordion-content {
-          padding: 0 22px;
-          overflow: hidden;
-          max-height: 0;
-          transition: max-height 0.35s ease;
+        .bottom-nav {
+          position: fixed;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100%;
+          max-width: 480px;
+          background: var(--nav-bg);
+          border-bottom: 1px solid var(--nav-border);
+          box-shadow: var(--nav-shadow);
+          display: flex;
+          z-index: 1000;
         }
-        .accordion-content.expanded {
-          max-height: 800px;
-          padding-top: 14px;
-          padding-bottom: 20px;
+        .bottom-nav button {
+          flex-grow: 1;
+          border: none;
+          background: none;
+          color: var(--nav-text);
+          font-weight: 600;
+          cursor: pointer;
+          padding: 0.75rem 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          font-size: 0.875rem;
+          gap: 4px;
+          user-select: none;
+          transition: color 0.3s ease;
         }
-
-        /* utility classes and utilities left for brevity */
+        .bottom-nav button span {
+          font-size: 0.75rem;
+        }
+        .bottom-nav button:hover:not(.active) {
+          color: var(--accent-hover);
+        }
+        .bottom-nav button.active {
+          color: var(--accent-color);
+          font-weight: 700;
+          box-shadow: inset 0 -3px 0 var(--accent-color);
+        }
+        .filter-group {
+          margin-bottom: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-weight: 600;
+          color: var(--text-color);
+        }
+        .filter-group input[type="date"] {
+          padding: 0.3rem 0.5rem;
+          border-radius: 6px;
+          border: 1px solid var(--accent-color);
+          font-family: inherit;
+          font-size: 1rem;
+          color: var(--text-color);
+          background: var(--input-bg);
+          cursor: pointer;
+        }
+        .filter-group button {
+          cursor: pointer;
+          background: var(--undo-color);
+          border: none;
+          color: var(--undo-text);
+          padding: 0.3rem 0.6rem;
+          border-radius: 6px;
+          font-weight: 700;
+          user-select: none;
+          transition: background-color 0.3s ease;
+        }
+        .filter-group button:hover {
+          opacity: 0.8;
+        }
+        .history-day {
+          background: var(--card-bg);
+          border-radius: 12px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+          box-shadow: var(--card-shadow);
+        }
+        .history-day h3 {
+          margin-top: 0;
+          margin-bottom: 0.75rem;
+          color: var(--accent-color);
+        }
+        .history-day ul {
+          list-style-type: disc;
+          margin-left: 1.5rem;
+          color: var(--text-color);
+        }
+        .history-day li {
+          margin-bottom: 0.5rem;
+        }
+        .readonly {
+          pointer-events: none;
+          user-select: none;
+          background-color: var(--card-bg);
+          border-radius: 8px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+          box-shadow: var(--card-shadow);
+          color: var(--text-color);
+        }
+        .readonly h3 {
+          margin-top: 0;
+          margin-bottom: 0.3rem;
+        }
+        .readonly p {
+          margin-top: 0;
+          margin-bottom: 0.3rem;
+          font-style: italic;
+          color: var(--nav-text);
+        }
       `}</style>
 
       <div>
-        <header>Workout Tracker</header>
+        <nav className="bottom-nav" role="tablist">
+          <button
+            className={currentTab === "today" ? "active" : ""}
+            onClick={() => setCurrentTab("today")}
+            role="tab"
+            aria-selected={currentTab === "today"}
+          >
+            <FaDumbbell size={18} />
+            <span>Today</span>
+          </button>
+          <button
+            className={currentTab === "history" ? "active" : ""}
+            onClick={() => setCurrentTab("history")}
+            role="tab"
+            aria-selected={currentTab === "history"}
+          >
+            <FaHistory size={18} />
+            <span>History</span>
+          </button>
+          <button
+            className={currentTab === "all" ? "active" : ""}
+            onClick={() => setCurrentTab("all")}
+            role="tab"
+            aria-selected={currentTab === "all"}
+          >
+            <FaListUl size={18} />
+            <span>All Workouts</span>
+          </button>
+        </nav>
+
+        <header className="app-header">
+          <h1>Workout Tracker</h1>
+        </header>
 
         <main>
-          {tab === 'today' && (
+          {currentTab === "today" && (
             <>
               <h2>{today}'s Workout</h2>
-              {workoutsData[today].map(ex => (
-                <WorkoutCard key={ex.id} exercise={ex} day={today} interactive />
+              {(workoutsData[today] || []).length === 0 && <p>No workouts today.</p>}
+              {(workoutsData[today] || []).map((exercise) => (
+                <WorkoutCard key={exercise.id} day={today} exercise={exercise} interactive />
               ))}
             </>
           )}
 
-          {tab === 'history' && (
+          {currentTab === "history" && (
             <>
-              <h2>History</h2>
-              <label htmlFor="filter-date" style={{ display: 'block', marginBottom: '10px' }}>
-                Filter by Date
-                <input id="filter-date" type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} style={{ marginLeft: '10px' }} />
-                {filterDate && <button onClick={() => setFilterDate('')} style={{ marginLeft: '10px' }}>Clear</button>}
-              </label>
-              {!filterDate && <p>Please select a date to see history</p>}
-              {filterDate && Object.keys(filteredCompletions).length === 0 && <p>No workouts found on this date</p>}
-              {filterDate && Object.entries(filteredCompletions).map(([day, exs]) => (
-                <Accordion key={day} day={day} expanded={expandedDays[day]} toggle={toggleDay}>
-                  {Object.entries(exs).map(([id, val]) => {
-                    const w = workoutsData[day].find(e => e.id === Number(id));
-                    return (
-                      <div key={id} className="card" style={{ marginBottom: '10px' }}>
-                        <strong>{w?.name ?? 'Unknown Exercise'}</strong> — Sets: {val.sets}, Reps: {val.reps}
-                      </div>
-                    );
-                  })}
-                </Accordion>
+              <h2>Workout History</h2>
+              <div className="filter-group">
+                <label htmlFor="filter-date">Filter by Date:</label>
+                <input
+                  type="date"
+                  id="filter-date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                />
+                {filterDate && (
+                  <button onClick={() => setFilterDate("")}>Clear</button>
+                )}
+              </div>
+              {Object.keys(completionForFilteredDate).length === 0 && (
+                <p>{filterDate ? "No workouts completed on this date." : "No workout records yet. Complete a workout to see your history!"}</p>
+              )}
+              {Object.entries(completionForFilteredDate).map(([day, exercises]) => (
+                <div className="history-day" key={day}>
+                  <h3>{day}</h3>
+                  <ul>
+                    {Object.entries(exercises).map(([exId, val]) => {
+                      const ex = (workoutsData[day] || []).find(
+                        (w) => w.id === parseInt(exId)
+                      );
+                      if (!ex) return null;
+                      return (
+                        <li key={exId}>
+                          {ex.name} - Sets: {val.sets}, Reps: {val.reps}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               ))}
             </>
           )}
 
-          {tab === 'all' && (
+          {currentTab === "all" && (
             <>
               <h2>All Workouts</h2>
-              {daysOfWeek.map(d => (
-                <Accordion key={d} day={d} expanded={expandedDays[d]} toggle={toggleDay}>
-                  {workoutsData[d].map(ex => (
-                    <div key={ex.id} className="card" style={{ marginBottom: '10px' }}>
-                      <h3 style={{ marginBottom: '5px' }}>{ex.name}</h3>
-                      <p style={{ fontStyle: 'italic', marginBottom: '5px' }}>{ex.notes}</p>
-                      <p>Sets: {ex.sets} — Reps: {Array.isArray(ex.reps) ? ex.reps.join(', ') : ex.reps}</p>
+              {daysOfWeek.map((day) => (
+                <section key={day}>
+                  <h3>{day}</h3>
+                  {(workoutsData[day] || []).length === 0 && <p>No workouts planned.</p>}
+                  {(workoutsData[day] || []).map((exercise) => (
+                    <div key={exercise.id} className="readonly">
+                      <h3>{exercise.name}</h3>
+                      <p className="notes">{exercise.notes}</p>
+                      <p>Sets: {exercise.sets} | Reps: {Array.isArray(exercise.reps) ? exercise.reps.join(", ") : exercise.reps}</p>
                     </div>
                   ))}
-                </Accordion>
+                </section>
               ))}
             </>
           )}
         </main>
-
-        <nav className="bottom-nav" role="tablist" aria-label="Main Navigation">
-          <button onClick={() => setTab('today')} className={tab === 'today' ? 'active' : ''} role="tab" aria-selected={tab === 'today'}>
-            <FaDumbbell />
-            Today
-          </button>
-          <button onClick={() => setTab('history')} className={tab === 'history' ? 'active' : ''} role="tab" aria-selected={tab === 'history'}>
-            <FaHistory />
-            History
-          </button>
-          <button onClick={() => setTab('all')} className={tab === 'all' ? 'active' : ''} role="tab" aria-selected={tab === 'all'}>
-            <FaListUl />
-            All
-          </button>
-        </nav>
       </div>
     </>
   );
