@@ -18,13 +18,40 @@ const workoutsData = {
     { id: 5, name: "Triceps Extension Machine", sets: 3, reps: [12, 15], notes: "Full contraction" },
     { id: 6, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Slow and controlled crunch" },
   ],
-  // ... Other days data (complete as per your data)
-  Tuesday: [/*...*/],
-  Wednesday: [/*...*/],
-  Thursday: [/*...*/],
-  Friday: [/*...*/],
-  Saturday: [/*...*/],
-  Sunday: [/*...*/],
+  Tuesday: [
+    { id: 7, name: "Seated Leg Press", sets: 4, reps: [10, 12], notes: "Primary Compound Lift, full range" },
+    { id: 8, name: "Leg Extension Machine", sets: 3, reps: [12, 15], notes: "Squeeze at the top" },
+    { id: 9, name: "Seated Leg Curl Machine", sets: 3, reps: [12, 15], notes: "Focus on the negative" },
+    { id: 10, name: "Hip Adduction Machine", sets: 3, reps: [15, 20], notes: "Squeeze glutes" },
+    { id: 11, name: "Glute Extension Machine", sets: 3, reps: [12, 15], notes: "Peak contraction" },
+    { id: 12, name: "Calf Extension Machine", sets: 3, reps: [15, 20], notes: "Full stretch and squeeze" },
+  ],
+  Wednesday: [
+    { id: 20, name: "Active Rest / Stretching", sets: 1, reps: ["30-45 Min"], notes: "Light walk/mobility, optional light cardio" },
+  ],
+  Thursday: [
+    { id: 21, name: "Lat Pulldown Machine", sets: 4, reps: [8, 10, 12], notes: "Pull with elbows, squeeze back" },
+    { id: 22, name: "Seated Row Machine", sets: 3, reps: [8, 10, 12], notes: "Pull to lower abs" },
+    { id: 23, name: "Assist Dip/Chin Machine", sets: 3, reps: [8, 10], notes: "Minimal assistance needed" },
+    { id: 24, name: "Rear Delt Machine", sets: 3, reps: [12, 15], notes: "Reverse pec fly for rear delts" },
+    { id: 25, name: "Bicep Curl Machine", sets: 3, reps: [12, 15], notes: "Controlled descent" },
+    { id: 26, name: "Back Extension Machine", sets: 3, reps: [12, 15], notes: "Controlled lower back/core strength" },
+  ],
+  Friday: [
+    { id: 27, name: "Seated Leg Curl Machine", sets: 4, reps: [10, 12], notes: "Heavy focus on hamstrings" },
+    { id: 28, name: "Inclined Leg Press", sets: 3, reps: [10, 12], notes: "Feet higher for glute/ham emphasis" },
+    { id: 29, name: "Super Squats Machine", sets: 3, reps: [10, 12], notes: "High rep quad/glute work" },
+    { id: 30, name: "Leg Raises (Captain's Chair)", sets: 3, reps: [15, 20], notes: "Supported vertical leg raises" },
+    { id: 31, name: "Russian Twist", sets: 3, reps: ["15/side"], notes: "Use dumbbell or plate" },
+    { id: 32, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Heavier abdominal focus" },
+  ],
+  Saturday: [
+    { id: 33, name: "Extended Cardio (Elliptical/Stairs/Treadmill)", sets: 1, reps: ["45-50 Min"], notes: "Steady state high calorie burn" },
+    { id: 34, name: "Stretching / Foam Rolling", sets: 1, reps: ["10-15 Min"], notes: "Dedicated mobility work" },
+  ],
+  Sunday: [
+    { id: 35, name: "Full Rest", sets: 0, reps: [], notes: "Prioritize sleep and nutrition" },
+  ],
 };
 
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -54,20 +81,18 @@ export default function Home() {
     if(typeof window !== "undefined") localStorage.setItem("workoutCompletions", JSON.stringify(completions));
   }, [completions]);
 
-  function toggleDay(day) {
-    setExpandedDays(prev => ({ ...prev, [day]: !prev[day] }));
-  }
+  const toggleDay = (day) => setExpandedDays(prev => ({ ...prev, [day]: !prev[day] }));
 
   function saveCompletion(day, id, data) {
     setCompletions(prev => {
       const dayData = {...(prev[day] || {})};
-      if (data) dayData[id] = data;
+      if(data) dayData[id] = data;
       else delete dayData[id];
       return {...prev, [day]: dayData};
     });
   }
 
-  function getCompletionsByDate(date) {
+  function filterCompletionsByDate(date) {
     if(!date) return completions;
     const filtered = {};
     Object.entries(completions).forEach(([day, exs]) => {
@@ -81,36 +106,36 @@ export default function Home() {
     return filtered;
   }
 
-  const filteredCompletions = getCompletionsByDate(filterDate);
+  const filteredCompletions = filterCompletionsByDate(filterDate);
 
-  const WorkoutCard = ({exercise, day, interactive}) => {
+  const WorkoutCard = ({ exercise, day, interactive }) => {
     const saved = completions[day]?.[exercise.id] || {};
-    const [sets, setSets] = useState(saved.sets || null);
-    const [reps, setReps] = useState(saved.reps || null);
+    const [selectedSets, setSelectedSets] = useState(saved.sets || null);
+    const [selectedReps, setSelectedReps] = useState(saved.reps || null);
     const [manualReps, setManualReps] = useState(saved.manual || "");
-    const [markedDone, setMarkedDone] = useState(!!saved.done);
+    const [markedDone, setMarkedDone] = useState(saved.done || false);
     const manualInputRef = useRef(null);
 
     useEffect(() => {
-      setSets(saved.sets || null);
-      setReps(saved.reps || null);
+      setSelectedSets(saved.sets || null);
+      setSelectedReps(saved.reps || null);
       setManualReps(saved.manual || "");
-      setMarkedDone(!!saved.done);
+      setMarkedDone(saved.done || false);
     }, [saved]);
 
     useEffect(() => {
-      if(reps === manualLabel && manualInputRef.current) {
+      if(selectedReps === manualLabel && manualInputRef.current) {
         manualInputRef.current.focus();
       }
-    }, [reps]);
+    }, [selectedReps]);
 
     function markDone() {
-      if (!markedDone && sets && (reps || reps === 0)) {
+      if(!markedDone && selectedSets && (selectedReps || selectedReps === 0)) {
         saveCompletion(day, exercise.id, {
           done: true,
-          sets,
-          reps: reps === manualLabel ? manualReps : reps,
-          manual: reps === manualLabel ? manualReps : null,
+          sets: selectedSets,
+          reps: selectedReps === manualLabel ? manualReps : selectedReps,
+          manual: selectedReps === manualLabel ? manualReps : null,
           timestamp: new Date().toISOString(),
         });
         setMarkedDone(true);
@@ -132,81 +157,36 @@ export default function Home() {
             <div className="selectors">
               <div className="sets">
                 <span>Sets:</span>
-                {setsOptions.map(option => (
-                  <button
-                    key={option}
-                    className={sets === option ? "selected" : ""}
-                    onClick={() => setSets(option)}
-                    type="button"
-                  >
-                    {option}
-                  </button>
+                {setsOptions.map(opt => (
+                  <button key={opt} className={selectedSets === opt ? "selected" : ""} onClick={() => setSelectedSets(opt)} type="button">{opt}</button>
                 ))}
               </div>
               <div className="reps">
                 <span>Reps:</span>
-                {repsOptions.map(option => (
-                  <button
-                    key={option}
-                    className={reps === option ? "selected" : ""}
-                    onClick={() => setReps(option)}
-                    type="button"
-                  >
-                    {option}
-                  </button>
+                {repsOptions.map(opt => (
+                  <button key={opt} className={selectedReps === opt ? "selected" : ""} onClick={() => setSelectedReps(opt)} type="button">{opt}</button>
                 ))}
-                <button
-                  className={reps === manualLabel ? "selected" : ""}
-                  onClick={() => setReps(manualLabel)}
-                  type="button"
-                >
-                  {manualLabel}
-                </button>
-                {reps === manualLabel && (
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="Enter reps"
-                    value={manualReps}
-                    onChange={(e) => setManualReps(e.target.value)}
-                    aria-label="Manual reps input"
-                    ref={manualInputRef}
-                  />
+                <button className={selectedReps === manualLabel ? "selected" : ""} onClick={() => setSelectedReps(manualLabel)} type="button">{manualLabel}</button>
+                {selectedReps === manualLabel && (
+                  <input type="number" min="1" placeholder="Enter reps" value={manualReps} onChange={e => setManualReps(e.target.value)} aria-label="Manual reps input" ref={manualInputRef} />
                 )}
               </div>
             </div>
-            <button
-              disabled={!sets || (!reps && reps !== manualLabel)}
-              className={`mark-btn ${markedDone ? "undo" : ""}`}
-              onClick={markDone}
-              type="button"
-            >
-              {markedDone ? (
-                <>
-                  <FaUndoAlt /> Undo
-                </>
-              ) : (
-                <>
-                  <FaCheckCircle /> Mark Done
-                </>
-              )}
+            <button disabled={!selectedSets || (!selectedReps && selectedReps !== manualLabel)} className={`mark-btn ${markedDone ? "undo" : ""}`} onClick={markDone} type="button">
+              {markedDone ? (<><FaUndoAlt /> Undo</>) : (<><FaCheckCircle /> Mark Done</>)}
             </button>
           </>
         )}
-        {interactive && markedDone && (
-          <button className="mark-btn undo" onClick={markDone} type="button">
-            Undo
-          </button>
-        )}
+        {interactive && markedDone && <button className="mark-btn undo" onClick={markDone} type="button">Undo</button>}
 
         <style jsx>{`
           .card {
             background: #1a1a1a;
-            color: #ddd;
             border-radius: 12px;
             padding: 14px;
             margin-bottom: 12px;
             box-shadow: 0 5px 12px #000a;
+            color: #ddd;
             transition: background-color 0.3s ease;
           }
           .done {
@@ -219,9 +199,7 @@ export default function Home() {
             justify-content: space-between;
             align-items: center;
           }
-          h4 {
-            margin: 0 0 8px 0;
-          }
+          h4 { margin: 0 0 8px 0; }
           .notes {
             font-style: italic;
             margin-bottom: 12px;
@@ -230,11 +208,10 @@ export default function Home() {
           .selectors {
             margin-bottom: 12px;
             display: flex;
-            gap: 20px;
             flex-wrap: wrap;
+            gap: 20px;
           }
-          .sets,
-          .reps {
+          .sets, .reps {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -245,35 +222,35 @@ export default function Home() {
             user-select: none;
           }
           button {
-            background-color: #3b703b;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
             cursor: pointer;
+            font-weight: 600;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 10px;
+            background-color: #3b703b;
+            color: white;
             user-select: none;
             transition: background-color 0.3s ease;
           }
-          button.selected,
-          button:hover:not(:disabled) {
+          button.selected, button:hover:not(:disabled) {
             background-color: #61c061;
             box-shadow: 0 0 12px #61c061aa;
           }
           button:disabled {
-            background-color: #286528;
+            background-color: #285328;
+            opacity: 0.6;
             cursor: not-allowed;
           }
           input[type="number"] {
             width: 60px;
             padding: 6px;
+            font-weight: 600;
+            color: #a3f6a3;
             border-radius: 8px;
             border: 1.5px solid #61c061;
-            background: #223322;
-            font-weight: 600;
+            background: #233523;
             font-family: "Inter", sans-serif;
-            color: #a8d6a8;
-            user-select: text;
+            user-select: auto;
           }
           .mark-btn {
             width: 100%;
@@ -285,12 +262,12 @@ export default function Home() {
             text-align: center;
           }
           .undo {
-            background: #a73232;
+            background: #b73232;
           }
           .done-icon {
-            color: #a8d6a8;
             font-size: 1.6rem;
-            filter: drop-shadow(0 0 6px #40d540aa);
+            color: #a8e6a8;
+            filter: drop-shadow(0 0 6px #41c741);
           }
         `}</style>
       </div>
@@ -298,56 +275,56 @@ export default function Home() {
   };
 
   // Accordion component
-  const Accordion = ({ day, expanded, onToggle, children }) => {
-    return (
-      <section className="accordion">
-        <header
-          className="accordion-header"
-          onClick={() => onToggle(day)}
-          onKeyDown={(e) => e.key === "Enter" && onToggle(day)}
-          tabIndex={0}
-          role="button"
-          aria-expanded={expanded}
-        >
-          {day}
-          {expanded ? <FaChevronUp /> : <FaChevronDown />}
-        </header>
-        <div className={`accordion-content${expanded ? " expanded" : ""}`}>{children}</div>
-        <style jsx>{`
-          .accordion {
-            background: #222;
-            border-radius: 14px;
-            box-shadow: 0 0 10px #000a;
-            margin-bottom: 20px;
-            user-select: none;
-          }
-          .accordion-header {
-            cursor: pointer;
-            color: #7fbf7f;
-            font-weight: 700;
-            font-size: 1.15rem;
-            padding: 14px 20px;
-            border-radius: 14px 14px 0 0;
-            border-bottom: 1px solid #3c693c;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-          }
-          .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.35s ease;
-            padding: 0 20px;
-          }
-          .accordion-content.expanded {
-            max-height: 1000px;
-            padding: 12px 20px 20px;
-          }
-        `}</style>
-      </section>
-    );
-  };
+  const Accordion = ({ day, expanded, onToggle, children }) => (
+    <section className="accordion">
+      <header
+        className="accordion-header"
+        onClick={() => onToggle(day)}
+        onKeyDown={e => e.key === "Enter" ? onToggle(day) : null}
+        tabIndex={0}
+        role="button"
+        aria-expanded={expanded}
+      >
+        {day}
+        {expanded ? <FaChevronUp /> : <FaChevronDown />}
+      </header>
+      <div className={`accordion-content${expanded ? " expanded" : ""}`}>
+        {children}
+      </div>
+      <style jsx>{`
+        .accordion {
+          background: #222;
+          border-radius: 14px;
+          box-shadow: 0 0 10px #000a;
+          margin-bottom: 20px;
+          user-select: none;
+        }
+        .accordion-header {
+          cursor: pointer;
+          color: #7fbf7f;
+          font-weight: 700;
+          font-size: 1.15rem;
+          padding: 14px 20px;
+          border-radius: 14px 14px 0 0;
+          border-bottom: 1px solid #3c693c;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          user-select: none;
+        }
+        .accordion-content {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.35s ease;
+          padding: 0 20px;
+        }
+        .accordion-content.expanded {
+          max-height: 1000px;
+          padding: 12px 20px 20px;
+        }
+      `}</style>
+    </section>
+  );
 
   return (
     <>
@@ -355,11 +332,11 @@ export default function Home() {
         body {
           margin: 0;
           font-family: "Inter", sans-serif;
-          background: #121212;
+          background-color: #121212;
           color: #ccc;
           min-height: 100vh;
-          padding-bottom: 72px;
           overflow-x: hidden;
+          padding-bottom: 72px;
         }
         main {
           max-width: 480px;
@@ -383,17 +360,17 @@ export default function Home() {
           border-radius: 40px;
           padding: 10px 30px;
           display: flex;
-          gap: 56px;
-          box-shadow: 0 0 20px #222;
+          gap: 60px;
+          box-shadow: 0 0 15px #222222aa;
           user-select: none;
-          z-index: 100;
+          z-index: 999;
         }
         nav.bottom-nav button {
           background: none;
           border: none;
           color: #888;
           font-weight: 600;
-          font-size: 0.875rem;
+          font-size: 0.85rem;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -429,79 +406,17 @@ export default function Home() {
       <div>
         <header>Workout Tracker</header>
 
-        <main>
-          {currentTab === "today" && (
-            <>
-              <h2>Today's Workouts ({today})</h2>
-              {workoutsData[today].map(ex => (
-                <WorkoutCard key={ex.id} exercise={ex} day={today} interactive />
-              ))}
-            </>
-          )}
-          {currentTab === "history" && (
-            <>
-              <h2>Workout History</h2>
-              <label htmlFor="date-filter" style={{ display: "block", marginBottom: 8 }}>
-                Filter by Date
-              </label>
-              <input id="date-filter" type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
-              {filterDate && (
-                <button
-                  onClick={() => setFilterDate("")}
-                  style={{ marginLeft: 8, background: "#933333", borderRadius: 6, color: "white", border: "none", padding: "6px 12px", cursor: "pointer" }}
-                >
-                  Clear
-                </button>
-              )}
-              {Object.keys(filteredCompletions).length === 0 && filterDate && (
-                <p>No workouts found for this date.</p>
-              )}
-              {Object.entries(filteredCompletions).map(([day, exs]) => (
-                <Accordion key={day} day={day} expanded={expandedDays[day]} onToggle={toggleDay}>
-                  {Object.entries(exs).map(([id, val]) => {
-                    const w = workoutsData[day]?.find(e => e.id === Number(id));
-                    return (
-                      <div key={id} className="card" style={{ marginBottom: 8 }}>
-                        <strong>{w?.name || "Unknown"}</strong> - Sets: {val.sets}, Reps: {val.reps}
-                      </div>
-                    );
-                  })}
-                </Accordion>
-              ))}
-            </>
-          )}
-          {currentTab === "all" && (
-            <>
-              <h2>All Workouts</h2>
-              {daysOfWeek.map(day => (
-                <Accordion key={day} day={day} expanded={expandedDays[day]} onToggle={toggleDay}>
-                  {(workoutsData[day] || []).map(ex => (
-                    <div key={ex.id} className="card" style={{ marginBottom: 12 }}>
-                      <h4>{ex.name}</h4>
-                      <p style={{ fontStyle: "italic", marginBottom: 8 }}>{ex.notes}</p>
-                      <p>
-                        Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}
-                      </p>
-                    </div>
-                  ))}
-                </Accordion>
-              ))}
-            </>
-          )}
-        </main>
+        <main>{/* Render content based on currentTab */}</main>
 
-        <nav className="bottom-nav" role="tablist" aria-label="Main navigation">
-          <button onClick={() => setCurrentTab("today")} className={currentTab === "today" ? "active" : ""} aria-selected={currentTab === "today"} role="tab">
-            <FaDumbbell />
-            Today
+        <nav className="bottom-nav" aria-label="Main Navigation" role="tablist">
+          <button onClick={() => setCurrentTab("today")} className={currentTab === "today" ? "active" : ""} aria-selected={currentTab === "today"} role="tab" tabIndex={0}>
+            <FaDumbbell /> Today
           </button>
-          <button onClick={() => setCurrentTab("history")} className={currentTab === "history" ? "active" : ""} aria-selected={currentTab === "history"} role="tab">
-            <FaHistory />
-            History
+          <button onClick={() => setCurrentTab("history")} className={currentTab === "history" ? "active" : ""} aria-selected={currentTab === "history"} role="tab" tabIndex={0}>
+            <FaHistory /> History
           </button>
-          <button onClick={() => setCurrentTab("all")} className={currentTab === "all" ? "active" : ""} aria-selected={currentTab === "all"} role="tab">
-            <FaListUl />
-            All
+          <button onClick={() => setCurrentTab("all")} className={currentTab === "all" ? "active" : ""} aria-selected={currentTab === "all"} role="tab" tabIndex={0}>
+            <FaListUl /> All
           </button>
         </nav>
       </div>
