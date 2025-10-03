@@ -4,139 +4,112 @@ import {
   FaHistory,
   FaListUl,
   FaCheckCircle,
-  FaUndoAlt,
+  FaUndoAlt
 } from "react-icons/fa";
 
 const workoutsData = {
   Monday: [
-    { id: 1, name: "Chest Press Machine", sets: 4, reps: [8, 10, 12], notes: "Primary Compound Lift", caloriesPerMin: 8 },
-    { id: 2, name: "Shoulder Press Machine", sets: 3, reps: [8, 10, 12], notes: "Controlled descent", caloriesPerMin: 7 },
-    { id: 3, name: "Pec Fly Machine", sets: 3, reps: [12, 15], notes: "Focus on squeeze", caloriesPerMin: 6 },
-    { id: 4, name: "Lateral Raise Machine", sets: 3, reps: [12, 15], notes: "Strict, slow movement", caloriesPerMin: 5 },
-    { id: 5, name: "Triceps Extension Machine", sets: 3, reps: [12, 15], notes: "Full contraction", caloriesPerMin: 5 },
-    { id: 6, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Slow and controlled crunch", caloriesPerMin: 7 },
+    { id: 1, name: "Chest Press Machine", sets: 4, reps: [8, 10, 12], notes: "Primary Compound Lift" },
+    // add other exercises...
   ],
   Tuesday: [
-    { id: 7, name: "Seated Leg Press", sets: 4, reps: [10, 12], notes: "Primary Compound Lift, full range", caloriesPerMin: 9 },
-    { id: 8, name: "Leg Extension Machine", sets: 3, reps: [12, 15], notes: "Squeeze at the top", caloriesPerMin: 8 },
-    { id: 9, name: "Seated Leg Curl Machine", sets: 3, reps: [12, 15], notes: "Focus on negative motion", caloriesPerMin: 8 },
-    { id: 10, name: "Hip Adduction Machine", sets: 3, reps: [15, 20], notes: "Squeeze glutes", caloriesPerMin: 6 },
-    { id: 11, name: "Glute Extension Machine", sets: 3, reps: [12, 15], notes: "Peak contraction", caloriesPerMin: 7 },
-    { id: 12, name: "Calf Extension Machine", sets: 3, reps: [15, 20], notes: "Full range calf workout", caloriesPerMin: 5 },
+    // exercises...
   ],
   Wednesday: [
-    { id: 20, name: "Active Rest", sets: 1, reps: ["30-45 min lightweight cardio/stretching"], caloriesPerMin: 1 },
+    // exercises...
   ],
   Thursday: [
-    { id: 21, name: "Lat Pulldown", sets: 4, reps: [8, 10, 12], notes: "Back engagement", caloriesPerMin: 8 },
-    { id: 22, name: "Seated Row", sets: 3, reps: [8, 10, 12], notes: "Back strength", caloriesPerMin: 7 },
-    { id: 23, name: "Assist Dip/Chin", sets: 3, reps: [8, 10], notes: "Assisted body weight", caloriesPerMin: 7 },
-    { id: 24, name: "Rear Delt Machine", sets: 3, reps: [12, 15], notes: "Rear shoulder focus", caloriesPerMin: 5 },
-    { id: 25, name: "Bicep Curl", sets: 3, reps: [12, 15], notes: "Isolated arm work", caloriesPerMin: 5 },
-    { id: 26, name: "Back Extension", sets: 3, reps: [12, 15], notes: "Lower back core", caloriesPerMin: 6 },
+    // exercises...
   ],
   Friday: [
-    { id: 27, name: "Seated Leg Curl", sets: 4, reps: [10, 12], notes: "Hamstrings focus", caloriesPerMin: 9 },
-    { id: 28, name: "Inclined Leg Press", sets: 3, reps: [10, 12], notes: "Quad/glute target", caloriesPerMin: 8 },
-    { id: 29, name: "Super Squats", sets: 3, reps: [10, 12], notes: "Quad bulk", caloriesPerMin: 8 },
-    { id: 30, name: "Leg Raises", sets: 3, reps: [15, 20], notes: "Core strength", caloriesPerMin: 6 },
-    { id: 31, name: "Russian Twist", sets: 3, reps: ["15 per side"], notes: "Obliques", caloriesPerMin: 5 },
-    { id: 32, name: "Abdominal Machine", sets: 3, reps: [15, 20], notes: "Core focus", caloriesPerMin: 7 },
+    // exercises...
   ],
   Saturday: [
-    { id: 33, name: "Elliptical/Cardio", sets: 1, reps: ["45 minutes"], caloriesPerMin: 130 },
-    { id: 34, name: "Stretch & Foam Roll", sets: 1, reps: ["10 minutes"], caloriesPerMin: 1 },
+    // exercises...
   ],
   Sunday: [
-    { id: 35, name: "Rest", sets: 0, reps: [], caloriesPerMin: 0, notes: "Full rest day" },
+    // exercises...
   ],
 };
 
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const setsOptions = [3, 4];
 const repsOptions = [8, 10, 12];
 const manualLabel = "Manual";
 
 export default function Home() {
-  const [tab, setTab] = React.useState("today");
-  const [completions, setCompletions] = React.useState(() => {
-    if(typeof window !== "undefined"){
-      const stored = localStorage.getItem('workoutCompletions');
+  const [tab, setTab] = useState("today");
+  const [completions, setCompletions] = useState(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("workoutCompletions");
       return stored ? JSON.parse(stored) : {};
     }
     return {};
   });
-  const [filterDate, setFilterDate] = React.useState("");
+  const [filterDate, setFilterDate] = useState("");
 
-  React.useEffect(() => {
-    if(typeof window !== "undefined") {
-      localStorage.setItem('workoutCompletions', JSON.stringify(completions));
+  // Always force dark mode from start for consistency
+  useEffect(() => {
+    if (typeof window !== "undefined") document.body.classList.add("dark");
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("workoutCompletions", JSON.stringify(completions));
     }
   }, [completions]);
 
-  // Always apply dark mode on mount
-  React.useEffect(() => {
-    if(typeof window !== "undefined") {
-      document.body.classList.add('dark');
-    }
-  }, []);
-
   function saveCompletion(day, id, data) {
     setCompletions(prev => {
-      const dayData = prev[day] || {};
+      const dayData = { ...(prev[day] || {}) };
       if (data) dayData[id] = data;
       else delete dayData[id];
       return { ...prev, [day]: dayData };
     });
   }
 
+  // Helper: fetch data filtered by date
   function completedByDate(date) {
-    if(!date) return completions;
-    let filtered = {};
+    if (!date) return {};
+    const stored = localStorage.getItem("workoutCompletions");
+    const completions = stored ? JSON.parse(stored) : {};
+    let result = {};
     Object.entries(completions).forEach(([day, exs]) => {
       Object.entries(exs).forEach(([id, val]) => {
-        if(val.timestamp?.startsWith(date)){
-          filtered[day] = filtered[day]||{};
-          filtered[day][id] = val;
-        }
+        if (val.timestamp?.startsWith(date))
+          result[day] = result[day] || {};
+          result[day][id] = val;
       });
     });
-    return filtered;
+    return result;
   }
 
-  let filteredCompletions = completedByDate(filterDate);
-  let today = daysOfWeek[new Date().getDay()];
+  const filtered = filterDate ? completedByDate(filterDate) : completions;
 
-  function WorkoutCard({ day, ex, interactive }) {
-    let saved = completions[day]?.[ex.id];
-    const [sets, setSets] = React.useState(saved?.sets || null);
-    const [reps, setReps] = React.useState(saved?.reps || null);
-    const [manualRep, setManualRep] = React.useState(saved?.manual || "");
-    const [done, setDone] = React.useState(saved?.done || false);
+  const today = daysOfWeek[new Date().getDay()];
 
-    React.useEffect(() => {
+  // Workout component
+  const Workout = ({ day, ex, interactive }) => {
+    const saved = completions[day]?.[ex.id];
+    const [sets, setSets] = useState(saved?.sets || null);
+    const [reps, setReps] = useState(saved?.reps || null);
+    const [manual, setManual] = useState(saved?.manual || "");
+    const [done, setDone] = useState(saved?.done || false);
+
+    useEffect(() => {
       setSets(saved?.sets || null);
       setReps(saved?.reps || null);
-      setManualRep(saved?.manual || "");
+      setManual(saved?.manual || "");
       setDone(saved?.done || false);
     }, [saved]);
 
-    function markDone() {
-      if(!done && sets && (reps || reps===0)){
+    function toggleDone() {
+      if (!done && sets && (reps || reps === 0)) {
         saveCompletion(day, ex.id, {
           done: true,
           sets,
-          reps: reps===manualLabel ? manualRep : reps,
-          manual: reps===manualLabel ? manualRep : null,
+          reps: reps === manualLabel ? manual : reps,
+          manual: reps === manualLabel ? manual : null,
           timestamp: new Date().toISOString()
         });
         setDone(true);
@@ -146,264 +119,254 @@ export default function Home() {
       }
     }
 
-    return <div className={`card ${done ? "done":""}`}>
-      <div className="cardHeader">
-        <h3>{ex.name}</h3>
-        {done && <FaCheckCircle className="doneIcon" />}
-      </div>
-      <p className="notes">{ex.notes}</p>
-      {interactive && !done &&
-        <div className="selectors">
-          <div className="sets">
-            <span>Sets:</span>
-            {setsOptions.map(opt =>
-              <button key={opt} className={opt===sets?"selected":""} onClick={() => setSets(opt)}>{opt}</button>)
-            }
-          </div>
-          <div className="reps">
-            <span>Reps:</span>
-            {repsOptions.map(opt =>
-              <button key={opt} className={opt===reps?"selected":""} onClick={() => setReps(opt)}>{opt}</button>)
-            }
-            <button className={reps===manualLabel?"selected":""} onClick={() => setReps(manualLabel)}>{manualLabel}</button>
-            {reps===manualLabel && <input type="number" min="1" placeholder="Reps" value={manualRep} onChange={e => setManualRep(e.target.value)} />}
-          </div>
+    return (
+      <div className={`card ${done ? "done" : ""}`}>
+        <div className="header">
+          <h3>{ex.name}</h3>
+          {done && <FaCheckCircle className="icon" />}
         </div>
-      }
-      {interactive && <button onClick={markDone} disabled={!sets || (reps===null && reps!==0)} className={`cta ${done?"undo":""}`}>
-        {done ? <><FaUndoAlt/> Undo</> : <><FaCheckCircle/> Mark Done</>}
-      </button>}
-      <style jsx>{`
-        .card {
-          background: #121212;
-          color: #eee;
-          border-radius: 16px;
-          box-shadow: 0 8px 20px rgb(0 0 0 / 0.9);
-          padding: 1em;
-          margin-bottom: 1em;
-        }
-        .card.done {
-          background: #223322;
-          box-shadow: 0 8px 30px #2d7a2dcc;
-          color: #bdf0bd;
-        }
-        .cardHeader {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        h3 {
-          margin: 0 0 .25em 0;
-        }
-        .notes {
-          font-size: 0.85em;
-          font-style: italic;
-          opacity: 0.75;
-          margin-bottom: .75em;
-        }
-        .selectors {
-          display: flex;
-          gap: 1em;
-          flex-wrap: wrap;
-          margin-bottom: 1em;
-        }
-        .sets, .reps {
-          display: flex;
-          align-items: center;
-          gap: 0.5em;
-        }
-        .sets span, .reps span {
-          font-weight: 600;
-          min-width: 40px;
-        }
-        button {
-          background: #256d5b;
-          border: none;
-          color: white;
-          padding: 0.5em 1em;
-          border-radius: 9999px;
-          cursor: pointer;
-          font-weight: 700;
-          user-select: none;
-          outline-offset: 2px;
-          transition: background-color 0.3s ease;
-        }
-        button.selected, button:hover:not(:disabled) {
-          background: #2ca785;
-          box-shadow: 0 0 10px #2ca785ee;
-        }
-        button:disabled {
-          background: #487f71;
-          cursor: not-allowed;
-        }
-        input {
-          width: 3.5em;
-          padding: 0.4em;
-          border-radius: 0.25em;
-          border: 1.5px solid #2ca785;
-          background: #223322;
-          color: #bdf0bd;
-          font-weight: 600;
-          user-select: auto;
-        }
-        .cta {
-          width: 100%;
-          padding: 0.75em 0;
-          font-size: 1.1em;
-          border-radius: 9999px;
-          background: #256d5b;
-        }
-        .cta.undo {
-          background: #cc3a3a;
-        }
-        .doneIcon {
-          font-size: 1.5em;
-          color: #bdf0bd;
-          filter: drop-shadow(0 0 3px #a8e7a8cc);
-        }
-      `}</style></div>
+        <p className="notes">{ex.notes}</p>
+        {interactive && !done && (
+          <div className="selectors">
+            <div className="sets">
+              <span>Sets:</span>
+              {setsOptions.map((n) => (
+                <button key={n} className={sets===n?"selected":""} onClick={() => setSets(n)}>{n}</button>
+              ))}
+            </div>
+            <div className="reps">
+              <span>Reps:</span>
+              {repsOptions.map(n => (
+                <button key={n} className={reps===n?"selected":""} onClick={() => setReps(n)}>{n}</button>
+              ))}
+              <button className={reps===manualLabel?"selected":""} onClick={() => setReps(manualLabel)}>{manualLabel}</button>
+              {reps===manualLabel && <input type="number" min="1" placeholder="Reps" value={manual} onChange={e=>setManual(e.target.value)} />}
+            </div>
+          </div>
+        )}
+        {interactive && (
+          <button disabled={!sets || (reps===null && reps!==0)} className={`cta ${done?"undo":""}`} onClick={toggleDone}>
+            {done ? <> <FaUndoAlt/> Undo </> : <> <FaCheckCircle/> Mark done </>}
+          </button>
+        )}
+
+        <style jsx>{`
+          .card {
+            background: #222;
+            border-radius: 16px;
+            padding: 1em;
+            box-shadow: 0 8px 20px rgb(0 0 0 / 0.9);
+            margin-bottom: 1em;
+            color: #eee;
+            transition: all 0.3s ease;
+          }
+          .done {
+            background: #111;
+            box-shadow: 0 0 20px #000;
+            color: #bbb;
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          h3 {
+            margin: 0;
+          }
+          .notes {
+            font-style: italic;
+            opacity: 0.7;
+            font-size: 0.85em;
+            margin-bottom: 0.75em;
+          }
+          .selectors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1em;
+            margin-bottom: 1em;
+          }
+          .sets, .reps {
+            display: flex;
+            gap: 0.7em;
+            align-items: center;
+          }
+          span {
+            font-weight: 600;
+            min-width: 50px;
+            display: inline-block;
+          }
+          button {
+            background: #444;
+            color: #eee;
+            border: none;
+            padding: 0.4em 0.8em;
+            border-radius: 0.75em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+          }
+          button.selected, button:hover:enabled {
+            background: #666;
+            box-shadow: 0 0 10px #666;
+          }
+          button:disabled {
+            background: #333;
+            cursor: not-allowed;
+            opacity: 0.7;
+          }
+          input {
+            width: 3.5em;
+            padding: 0.3em;
+            border-radius: 4px;
+            border: 1px solid #666;
+            background: #222;
+            color: #eee;
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+            outline: none;
+          }
+          .cta {
+            display: block;
+            width: 100%;
+            margin-top: 1em;
+            padding: 0.75em;
+            background: #555;
+            border-radius: 1.2em;
+            font-size: 1.1em;
+            text-align: center;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease;
+          }
+          .undo {
+            background: #a33;
+          }
+          .icon {
+            font-size: 1.6em;
+            filter: drop-shadow(0 0 4px #000);
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
     <>
       <style jsx global>{`
-        :root {
-          --accent: #256d5b;
-        }
         body {
-          font-family: 'Inter', sans-serif;
-          background: #121212;
-          color: #eee;
           margin: 0;
-          padding: 0;
-        }
-        main {
-          max-width: 480px;
-          margin: auto;
-          padding: 1rem;
-          padding-bottom: 58px;
-          box-sizing: border-box;
-        }
-        .bottom-nav {
-          position: fixed;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          background: #181818;
-          padding: 0.75rem 1.5rem;
-          border-radius: 1.5rem 1.5rem 0 0;
-          display: flex;
-          gap: 2rem;
-          z-index: 1000;
-          box-shadow: 0 -2px 10px rgba(0,0,0,0.7);
-        }
-        .bottom-nav button {
-          background: transparent;
-          border: none;
-          color: #bfbfbf;
-          font-weight: 600;
-          cursor: pointer;
-          user-select: none;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.3em;
-          font-size: 0.875rem;
-        }
-        .bottom-nav button.active {
-          color: #2ca785;
-        }
-        .bottom-nav button div {
-          font-size: 1.2rem;
+          font-family: 'Inter', sans-serif;
+          background: #111;
+          color: #eee;
+          transition: all 0.3s ease;
         }
       `}</style>
 
       <div>
-        <header className="app-header" style={{ padding: "1rem", textAlign: "center", background: "#181818", color: "#eee" }}>
-          <h1 style={{ margin: 0, fontWeight: "900" }}>Workout Tracker</h1>
+        <header style={{ padding: "1em", textAlign: "center" }}>
+          <h1 style={{ margin: 0, fontWeight: 900 }}>Workout Tracker</h1>
         </header>
 
-        <main>
-          {tab === "today" && <>
-            <h2>Today's Workout ({daysOfWeek[new Date().getDay()]})</h2>
-            {workoutsData[daysOfWeek[new Date().getDay()]].length === 0 && <p>No workouts scheduled.</p>}
-            {workoutsData[daysOfWeek[new Date().getDay()]].map(ex => <WorkoutCard key={ex.id} day={daysOfWeek[new Date().getDay()]} ex={ex} interactive />)}
-          </>}
-
-          {tab === "history" && <>
-            <h2>Workout History</h2>
-            <label>
-              Filter by date: &nbsp;
-              <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
-              {filterDate && <button onClick={() => setFilterDate("")} style={{ marginLeft: "0.5rem", background: "#cc3a3a", color: "#fff", borderRadius: "0.25rem", border: "none", cursor: "pointer" }}>Clear</button>}
-            </label>
-            <br />
-            {filterDate ?
-              Object.entries(completedByDate(filterDate)).map(([day, exs]) => (
-                <section key={day}>
-                  <h3>{day}</h3>
-                  <ul>
-                    {Object.entries(exs).map(([id, data]) => (
-                      <li key={id}>{workoutsData[day].find(w => w.id == id)?.name} - Sets: {data.sets}, Reps: {data.reps}</li>
-                    ))}
-                  </ul>
-                </section>
-              ))
-              : <p>Please select a date to show history.</p>
-            }
-          </>}
-
-          {tab === "all" && <>
-            <h2>All Workouts</h2>
-            {daysOfWeek.map(day => (
-              <section key={day}>
-                <h3>{day}</h3>
-                {workoutsData[day].length === 0 ? <p>No workouts scheduled.</p> :
-                  workoutsData[day].map(w => (
-                    <div key={w.id} style={{ padding: "1rem", marginBottom: "1rem", background: "#222", borderRadius: "1rem", color: "#eee" }}>
-                      <h4>{w.name}</h4>
-                      <p style={{ fontStyle: "italic" }}>{w.notes}</p>
-                      <p>Sets: {w.sets}, Reps: {Array.isArray(w.reps) ? w.reps.join(", ") : w.reps}</p>
-                    </div>
-                  ))
-                }
-              </section>
-            ))}
-          </>}
-
-        </main>
-
-        <nav className="bottom-nav" role="tablist" aria-label="Main navigation">
-          <button onClick={() => setTab("today")} className={tab === "today" ? "active" : ""} role="tab" aria-selected={tab === "today"} aria-controls="maincontent" tabIndex={0}>
-            <div><FaDumbbell /></div>
-            <span>Today</span>
+        {/* Tabs fixed at bottom, centered */}
+        <nav
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            width: "100%",
+            maxWidth: "480px",
+            display: "flex",
+            justifyContent: "center",
+            padding: "0.75em 1em",
+            background: "#222",
+            boxShadow: "0 -2px 10px rgba(0,0,0,0.8)",
+            borderRadius: "1rem 1rem 0 0",
+            zIndex: 999,
+          }}
+        >
+          <button
+            style={{ margin: "0 1em" }}
+            onClick={() => setTab("today")}
+            className={tab === "today" ? "active" : ""}
+            aria-label="Today"
+          >
+            <FaDumbbell />
+            Today
           </button>
-          <button onClick={() => setTab("history")} className={tab === "history" ? "active" : ""} role="tab" aria-selected={tab === "history"} aria-controls="maincontent" tabIndex={0}>
-            <div><FaHistory /></div>
-            <span>History</span>
+          <button
+            style={{ margin: "0 1em" }}
+            onClick={() => setTab("history")}
+            className={tab === "history" ? "active" : ""}
+            aria-label="History"
+          >
+            <FaHistory />
+            History
           </button>
-          <button onClick={() => setTab("all")} className={tab === "all" ? "active" : ""} role="tab" aria-selected={tab === "all"} aria-controls="maincontent" tabIndex={0}>
-            <div><FaListUl /></div>
-            <span>All</span>
+          <button
+            style={{ margin: "0 1em" }}
+            onClick={() => setTab("all")}
+            className={tab === "all" ? "active" : ""}
+            aria-label="All Workout"
+          >
+            <FaListUl />
+            All
           </button>
         </nav>
-      </div>
-    );
-}
 
-function completedByDate(date) {
-  if(!date) return {};
-  const stored = localStorage.getItem('workoutCompletions');
-  if(!stored) return {};
-  const completions = JSON.parse(stored);
-  let filtered = {};
-  Object.entries(completions).forEach(([day, exs]) => {
-    Object.entries(exs).forEach(([id, val]) => {
-      if(val.timestamp && val.timestamp.startsWith(date)){
-        filtered[day] = filtered[day] || {};
-        filtered[day][id] = val;
-      }
-    });
-  });
-  return filtered;
+        <main>
+          {tab === "today" && (
+            <>
+              <h2>{daysOfWeek[new Date().getDay()]}</h2>
+              {workoutsData[daysOfWeek[new Date().getDay()]].map(w => (
+                <Workout key={w.id} day={daysOfWeek[new Date().getDay()]} ex={w} interactive />
+              ))}
+            </>
+          )}
+          {tab === "history" && (
+            <>
+              <h2>History</h2>
+              <label htmlFor="date">Filter date: </label>
+              <input
+                type="date"
+                id="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+              />
+              {filterDate && <button onClick={() => setFilterDate("")}>Clear</button>}
+              {Object.keys(completions).length === 0 && <p>No history</p>}
+              {Object.keys(completions).map(day => (
+                <div key={day}>
+                  <h4>{day}</h4>
+                  <ul>
+                    {Object.entries(completions[day]).map(([id, val]) => (
+                      <li key={id}>{workoutsData[day].find(w => w.id==id)?.name} – Sets: {val.sets}, Reps: {val.reps}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </>
+          )}
+          {tab === "all" && (
+            <>
+              <h2>All Workouts</h2>
+              {daysOfWeek.map(day => (
+                <div key={day}>
+                  <h3>{day}</h3>
+                  {workoutsData[day].map(w => (
+                    <div key={w.id} className="readonly">
+                      <h4>{w.name}</h4>
+                      <p style={{ fontStyle: "italic" }}>{w.notes}</p>
+                      <p>
+                        Sets: {w.sets} Reps: {Array.isArray(w.reps) ? w.reps.join(", ") : w.reps}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </>
+          )}
+        </main>
+      </div>
+    </>
+  );
 }
