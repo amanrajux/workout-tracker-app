@@ -1,13 +1,5 @@
-import { useState, useEffect } from "react";
-import {
-  FaDumbbell,
-  FaHistory,
-  FaListUl,
-  FaCheckCircle,
-  FaUndoAlt,
-  FaSun,
-  FaMoon,
-} from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaDumbbell, FaHistory, FaListUl, FaCheckCircle, FaUndoAlt, FaSun, FaMoon } from "react-icons/fa";
 
 const workoutsData = {
   Monday: [
