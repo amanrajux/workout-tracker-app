@@ -57,7 +57,8 @@ const workoutsData = {
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const setsOptions = [3, 4];
 const repsOptions = [8, 10, 12];
-const manualLabel = "Manual";
+const manualLabel = "Manual Entry";
+
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState("today");
@@ -83,30 +84,30 @@ export default function Home() {
 
   const toggleDay = (day) => setExpandedDays(prev => ({ ...prev, [day]: !prev[day] }));
 
-  function saveCompletion(day, exerciseId, data) {
+  function saveCompletion(day, id, data) {
     setCompletions(prev => {
-      const dayData = { ...prev[day] } || {};
-      if(data) dayData[exerciseId] = data;
-      else delete dayData[exerciseId];
-      return { ...prev, [day]: dayData };
+      const dayData = {...(prev[day] || {})};
+      if(data) dayData[id] = data;
+      else delete dayData[id];
+      return {...prev, [day]: dayData};
     });
   }
 
-  const filterCompletionsByDate = (date) => {
+  function getCompletionsByDate(date) {
     if(!date) return completions;
     const filtered = {};
-    Object.entries(completions).forEach(([day, exs]) =>
-      Object.entries(exs).forEach(([exId, val]) => {
+    Object.entries(completions).forEach(([day, exs]) => {
+      Object.entries(exs).forEach(([id, val]) => {
         if(val.timestamp && val.timestamp.startsWith(date)) {
           if(!filtered[day]) filtered[day] = {};
-          filtered[day][exId] = val;
+          filtered[day][id] = val;
         }
-      })
-    );
+      });
+    });
     return filtered;
-  };
+  }
 
-  const filteredCompletions = filterCompletionsByDate(filterDate);
+  const filteredCompletions = getCompletionsByDate(filterDate);
 
   const WorkoutCard = ({ exercise, day, interactive }) => {
     const saved = completions[day]?.[exercise.id] || {};
@@ -114,7 +115,7 @@ export default function Home() {
     const [selectedReps, setSelectedReps] = useState(saved.reps || null);
     const [manualReps, setManualReps] = useState(saved.manual || "");
     const [markedDone, setMarkedDone] = useState(saved.done || false);
-    const manualInputRef = useRef(null);
+    const manualInputRef = React.useRef(null);
 
     useEffect(() => {
       setSelectedSets(saved.sets || null);
@@ -146,7 +147,7 @@ export default function Home() {
     }
 
     return (
-      <div className={`card${markedDone ? ' done' : ''}`}>
+      <div className={`card${markedDone ? " done" : ""}`}>
         <div className="card-header">
           <h4>{exercise.name}</h4>
           {markedDone && <FaCheckCircle className="done-icon" />}
@@ -157,45 +158,40 @@ export default function Home() {
             <div className="selectors">
               <div className="sets">
                 <span>Sets:</span>
-                {setsOptions.map(n => (
-                  <button key={n} className={selectedSets === n ? 'selected' : ''} onClick={() => setSelectedSets(n)}>{n}</button>
+                {setsOptions.map((opt) => (
+                  <button key={opt} className={selectedSets === opt ? "selected" : ""} onClick={() => setSelectedSets(opt)} type="button">
+                    {opt}
+                  </button>
                 ))}
               </div>
               <div className="reps">
                 <span>Reps:</span>
-                {repsOptions.map(n => (
-                  <button key={n} className={selectedReps === n ? 'selected' : ''} onClick={() => setSelectedReps(n)}>{n}</button>
+                {repsOptions.map((opt) => (
+                  <button key={opt} className={selectedReps === opt ? "selected" : ""} onClick={() => setSelectedReps(opt)} type="button">
+                    {opt}
+                  </button>
                 ))}
-                <button
-                  className={selectedReps === manualLabel ? "selected" : ""}
-                  onClick={() => setSelectedReps(manualLabel)}
-                >
-                  {manualLabel}
-                </button>
+                <button onClick={() => setSelectedReps(manualLabel)} className={selectedReps === manualLabel ? "selected" : ""} type="button">{manualLabel}</button>
                 {selectedReps === manualLabel && (
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="Enter reps"
-                    ref={manualInputRef}
-                    value={manualReps}
-                    onChange={e => setManualReps(e.target.value)}
-                    aria-label="Manual reps input"
-                  />
+                  <input type="number" min="1" placeholder="Enter reps" value={manualReps} onChange={(e) => setManualReps(e.target.value)} aria-label="Manual reps input" ref={manualInputRef} />
                 )}
               </div>
             </div>
-            <button
-              onClick={markDone}
-              className="mark-btn"
-              disabled={!selectedSets || (selectedReps === null && selectedReps !== 0)}
-            >
-              Mark Done
+            <button disabled={!selectedSets || (!selectedReps && selectedReps !== manualLabel)} className={`mark-btn ${markedDone ? "undo" : ""}`} onClick={markDone} type="button">
+              {markedDone ? (
+                <>
+                  <FaUndoAlt /> Undo
+                </>
+              ) : (
+                <>
+                  <FaCheckCircle /> Mark Done
+                </>
+              )}
             </button>
           </>
         )}
         {interactive && markedDone && (
-          <button className="mark-btn undo" onClick={markDone}>
+          <button className="mark-btn undo" onClick={markDone} type="button">
             Undo
           </button>
         )}
@@ -205,14 +201,15 @@ export default function Home() {
             background: #1a1a1a;
             border-radius: 12px;
             padding: 14px;
-            margin: 10px 0;
-            box-shadow: 0 5px 15px rgb(0 0 0 / 0.8);
+            margin-bottom: 12px;
+            box-shadow: 0 5px 12px #000d;
             color: #ddd;
+            transition: background-color 0.3s ease;
           }
           .done {
-            background-color: #285228;
-            color: #abe2ab;
-            box-shadow: 0 0 14px #40d540aa;
+            background: #295329;
+            color: #a8d6a8;
+            box-shadow: 0 0 14px #4db94dbb;
           }
           .card-header {
             display: flex;
@@ -225,83 +222,86 @@ export default function Home() {
           }
           .notes {
             font-style: italic;
-            opacity: 0.7;
             margin-bottom: 12px;
+            opacity: 0.75;
           }
           .selectors {
-            display: flex;
-            gap: 20px;
             margin-bottom: 12px;
+            display: flex;
             flex-wrap: wrap;
+            gap: 20px;
           }
-          .sets, .reps {
+          .sets,
+          .reps {
             display: flex;
             align-items: center;
             gap: 8px;
           }
           span {
-            font-weight: 600;
-            min-width: 40px;
             user-select: none;
+            min-width: 40px;
+            font-weight: 600;
           }
           button {
             cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: none;
-            background-color: #3b7d3b;
-            color: white;
             font-weight: 600;
-            transition: background-color 0.3s ease;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 10px;
+            background-color: #3b6c3b;
+            color: white;
             user-select: none;
+            transition: background-color 0.3s ease;
           }
-          button.selected, button:hover:not(:disabled) {
-            background-color: #59c859;
-            box-shadow: 0 0 12px #59c859bb;
+          button.selected,
+          button:hover:not(:disabled) {
+            background-color: #5ccb5c;
+            box-shadow: 0 0 12px #5ccb5caa;
           }
           button:disabled {
-            background-color: #2a4b2a;
-            cursor: not-allowed;
+            background-color: #1f3a1f;
             opacity: 0.6;
+            cursor: not-allowed;
           }
           input[type="number"] {
             width: 60px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1.5px solid #59c859;
-            background-color: #223522;
-            color: #bdeebb;
+            padding: 6px;
             font-weight: 600;
+            color: #a3f6a3;
+            border-radius: 8px;
+            background: #234523;
+            border: 1.5px solid #5ccb5c;
             font-family: "Inter", sans-serif;
+            user-select: auto;
           }
           .mark-btn {
             width: 100%;
-            padding: 12px 0;
+            padding: 12px;
             border-radius: 30px;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 1.1rem;
-            background-color: #347534;
-            transition: background-color 0.3s ease;
+            background: #3b6c3b;
+            transition: background 0.3s ease;
           }
           .undo {
-            background-color: #b83333;
+            background: #c24343;
           }
           .done-icon {
-            color: #abe2ab;
             font-size: 1.6rem;
-            filter: drop-shadow(0 0 6px #40d540);
+            color: #afe9af;
+            filter: drop-shadow(0 0 6px #4db94d);
           }
         `}</style>
       </div>
     );
   };
 
-  // Accordion component for All & History tabs day grouping
+  // Accordion component
   const Accordion = ({ day, expanded, onToggle, children }) => (
     <section className="accordion">
       <header
         onClick={() => onToggle(day)}
-        onKeyDown={(e) => e.key === "Enter" && onToggle(day)}
+        onKeyDown={e => (e.key === "Enter" ? onToggle(day) : null)}
         tabIndex={0}
         role="button"
         aria-expanded={expanded}
@@ -318,20 +318,21 @@ export default function Home() {
           background: #222;
           border-radius: 14px;
           box-shadow: 0 0 10px #000a;
-          margin-bottom: 1.5rem;
+          margin-bottom: 20px;
           user-select: none;
         }
         .accordion-header {
-          padding: 12px 20px;
           cursor: pointer;
-          color: #7ec87e;
+          color: #81b881;
           font-weight: 700;
           font-size: 1.15rem;
+          padding: 14px 20px;
+          border-radius: 14px 14px 0 0;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid #3c693c;
-          border-radius: 14px 14px 0 0;
+          border-bottom: 1px solid #2e4e2e;
+          user-select: none;
         }
         .accordion-content {
           max-height: 0;
@@ -340,9 +341,8 @@ export default function Home() {
           padding: 0 20px;
         }
         .accordion-content.expanded {
-          max-height: 1000px;
-          padding-top: 15px;
-          padding-bottom: 15px;
+          max-height: 10000px;
+          padding: 15px 20px 20px;
         }
       `}</style>
     </section>
@@ -354,31 +354,34 @@ export default function Home() {
         body {
           margin: 0;
           font-family: "Inter", sans-serif;
-          background-color: #111;
+          background-color: #121212;
           color: #ccc;
           min-height: 100vh;
           overflow-x: hidden;
           padding-bottom: 72px;
         }
+
         main {
           max-width: 480px;
           margin: 0 auto;
           padding: 1rem;
         }
+
         header {
           text-align: center;
           font-weight: 900;
           font-size: 1.75rem;
           padding: 1rem 0;
           user-select: none;
-          color: #7ec87e;
+          color: #85bf85;
         }
+
         nav.bottom-nav {
           position: fixed;
           bottom: 16px;
           left: 50%;
           transform: translateX(-50%);
-          background: #222;
+          background-color: #222;
           border-radius: 34px;
           padding: 10px 30px;
           display: flex;
@@ -387,55 +390,59 @@ export default function Home() {
           user-select: none;
           z-index: 999;
         }
+
         nav.bottom-nav button {
           background: none;
           border: none;
-          color: #666;
+          color: #777;
           font-weight: 600;
           font-size: 0.85rem;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           cursor: pointer;
-          transition: color 0.3s ease;
+          transition: color 0.25s ease;
           outline-offset: 2px;
         }
+
         nav.bottom-nav button:hover,
         nav.bottom-nav button:focus-visible {
-          color: #7ec87e;
+          color: #85bf85;
           outline: none;
         }
+
         nav.bottom-nav button.active {
-          color: #7ec87e;
+          color: #85bf85;
         }
+
         input[type="date"] {
-          padding: 8px 14px;
-          font-size: 1rem;
-          border-radius: 8px;
+          background-color: #212e21;
+          color: #acf0ac;
           border: none;
-          background-color: #233423;
-          color: #aadeac;
+          border-radius: 6px;
+          padding: 8px 14px;
           font-family: inherit;
+          font-size: 1rem;
           outline: none;
           margin-left: 0.5rem;
           user-select: text;
         }
+
         button:focus,
         input:focus {
-          outline: 3px solid #6abf6a;
+          outline: 3px solid #74b874;
           outline-offset: 2px;
         }
       `}</style>
 
       <div>
         <header>Workout Tracker</header>
-
         <main>
           {currentTab === "today" && (
             <>
-              <h2>Today's Workouts ({today})</h2>
-              {workouts[today].map(ex => (
+              <h2>Today ({today})</h2>
+              {workoutsData[today].map((ex) => (
                 <WorkoutCard key={ex.id} exercise={ex} day={today} interactive />
               ))}
             </>
@@ -446,28 +453,26 @@ export default function Home() {
               <h2>Workout History</h2>
               <label htmlFor="date-filter">
                 Filter by Date:
-                <input
-                  id="date-filter"
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                />
-                {filterDate && (
-                  <button onClick={() => setFilterDate("")} style={{ marginLeft: 8, background: "#a33232", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", cursor: "pointer" }}>
-                    Clear
-                  </button>
-                )}
+                <input id="date-filter" type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
               </label>
+              {filterDate && (
+                <button
+                  onClick={() => setFilterDate("")}
+                  style={{ marginLeft: "8px", background: "#9a3232", color: "white", borderRadius: 6, border: "none", padding: "6px 12px", cursor: "pointer" }}
+                >
+                  Clear
+                </button>
+              )}
               {Object.keys(filteredCompletions).length === 0 && filterDate && (
-                <p style={{ marginTop: 12 }}>No workouts found for this date.</p>
+                <p>No completed workouts found for this date.</p>
               )}
               {Object.entries(filteredCompletions).map(([day, exs]) => (
                 <Accordion key={day} day={day} expanded={expandedDays[day]} onToggle={toggleDay}>
                   {Object.entries(exs).map(([id, val]) => {
-                    const w = workouts[day]?.find(e => e.id === Number(id));
+                    const w = workoutsData[day].find(e => e.id === Number(id));
                     return (
                       <div key={id} className="card" style={{ marginBottom: "8px" }}>
-                        <strong>{w?.name || "Unknown"}</strong> - Sets: {val.sets} Reps: {val.reps}
+                        <strong>{w?.name || "Unknown"}</strong>: Sets: {val.sets} Reps: {val.reps}
                       </div>
                     );
                   })}
@@ -481,11 +486,13 @@ export default function Home() {
               <h2>All Workouts</h2>
               {daysOfWeek.map(day => (
                 <Accordion key={day} day={day} expanded={expandedDays[day]} onToggle={toggleDay}>
-                  {(workouts[day] || []).map(ex => (
+                  {(workoutsData[day] || []).map(ex => (
                     <div key={ex.id} className="card" style={{ marginBottom: 12 }}>
                       <h4>{ex.name}</h4>
                       <p style={{ fontStyle: "italic", marginBottom: 8 }}>{ex.notes}</p>
-                      <p>Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}</p>
+                      <p>
+                        Sets: {ex.sets} | Reps: {Array.isArray(ex.reps) ? ex.reps.join(", ") : ex.reps}
+                      </p>
                     </div>
                   ))}
                 </Accordion>
@@ -495,72 +502,20 @@ export default function Home() {
         </main>
 
         <nav className="bottom-nav" role="tablist" aria-label="Main navigation">
-          <button onClick={() => setCurrentTab("today")} className={currentTab === "today" ? "active" : ""} role="tab" aria-selected={currentTab === "today"}>
-            <FaDumbbell size={24} />
+          <button onClick={() => setCurrentTab("today")} className={currentTab === "today" ? "active" : ""} aria-selected={currentTab === "today"} role="tab" tabIndex={0}>
+            <FaDumbbell />
             Today
           </button>
-          <button onClick={() => setCurrentTab("history")} className={currentTab === "history" ? "active" : ""} role="tab" aria-selected={currentTab === "history"}>
-            <FaHistory size={24} />
+          <button onClick={() => setCurrentTab("history")} className={currentTab === "history" ? "active" : ""} aria-selected={currentTab === "history"} role="tab" tabIndex={0}>
+            <FaHistory />
             History
           </button>
-          <button onClick={() => setCurrentTab("all")} className={currentTab === "all" ? "active" : ""} role="tab" aria-selected={currentTab === "all"}>
-            <FaListUl size={24} />
+          <button onClick={() => setCurrentTab("all")} className={currentTab === "all" ? "active" : ""} aria-selected={currentTab === "all"} role="tab" tabIndex={0}>
+            <FaListUl />
             All
           </button>
         </nav>
       </div>
     </>
-  );
-}
-function Accordion({ day, expanded, onToggle, children }) {
-  return (
-    <section className="accordion">
-      <header
-        className="accordion-header"
-        onClick={() => onToggle(day)}
-        onKeyDown={e => e.key === "Enter" && onToggle(day)}
-        tabIndex={0}
-        role="button"
-        aria-expanded={expanded}
-      >
-        <span>{day}</span>
-        {expanded ? <FaChevronUp /> : <FaChevronDown />}
-      </header>
-      <div className={`accordion-content${expanded ? " expanded" : ""}`}>
-        {children}
-      </div>
-      <style jsx>{`
-        .accordion {
-          background: #222;
-          border-radius: 14px;
-          box-shadow: 0 0 10px #000a;
-          margin-bottom: 24px;
-          user-select: none;
-        }
-        .accordion-header {
-          padding: 14px 20px;
-          cursor: pointer;
-          color: #7bc37b;
-          font-weight: 700;
-          font-size: 1.15rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 1px solid #304030;
-          border-radius: 14px 14px 0 0;
-          user-select: none;
-        }
-        .accordion-content {
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.4s ease;
-          padding: 0 20px;
-        }
-        .accordion-content.expanded {
-          max-height: 1000px;
-          padding: 14px 20px 20px;
-        }
-      `}</style>
-    </section>
   );
 }
