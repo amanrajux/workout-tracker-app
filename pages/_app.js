@@ -15,8 +15,7 @@ export default function MyApp({ Component, pageProps }) {
           font-family: "Inter", sans-serif;
           margin: 0;
           padding: 0;
-          background-color: #013220; /* Deep sea green dark background */
-          color: #e0f2f1;
+          /* background and color handled at page level for dark/light mode toggle */
         }
       `}</style>
       <Component {...pageProps} />
